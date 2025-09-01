@@ -145,7 +145,7 @@ export default function StudentRegistration() {
           {/* Student Registration */}
           <Card>
             <CardHeader
-              className="bg-gradient-to-r from-hostel-gold to-hostel-secondary text-white cursor-pointer rounded-t-xl"
+              className="bg-gradient-to-r from-hostel-gold to-hostel-burgundy text-white cursor-pointer rounded-t-xl"
               onClick={() => setStudentFormOpen(!studentFormOpen)}
             >
               <CardTitle className="flex items-center justify-between">
@@ -475,7 +475,7 @@ export default function StudentRegistration() {
           {/* Parent & Guardian Registration */}
           <Card>
             <CardHeader
-              className="bg-gradient-to-r from-hostel-gold to-hostel-secondary text-white cursor-pointer rounded-t-xl"
+              className="bg-gradient-to-r from-hostel-gold to-hostel-burgundy text-white cursor-pointer rounded-t-xl"
               onClick={() => setParentFormOpen(!parentFormOpen)}
             >
               <CardTitle className="flex items-center justify-between">
@@ -819,7 +819,7 @@ export default function StudentRegistration() {
           {/* Medical History */}
           <Card>
             <CardHeader
-              className="bg-gradient-to-r from-hostel-gold to-hostel-secondary text-white cursor-pointer rounded-t-xl"
+              className="bg-gradient-to-r from-hostel-gold to-hostel-burgundy text-white cursor-pointer rounded-t-xl"
               onClick={() => setMedicalFormOpen(!medicalFormOpen)}
             >
               <CardTitle className="flex items-center justify-between">

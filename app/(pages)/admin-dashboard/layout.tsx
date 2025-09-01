@@ -10,12 +10,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-
       >
-
-        <div className="min-h-screen flex">
-          <AdminSidebar />
-          <main className="flex-1 bg-background">{children}</main>
+       <div className="min-h-screen flex">
+          <div className="sticky"> <AdminSidebar /></div>
+           <main className="w-full max-h-screen  overflow-auto">{children}</main>
         </div>
 
       </body>

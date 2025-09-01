@@ -13,11 +13,32 @@
   --hostel-warm-bg: 45 50% 95%;
   --hostel-text-dark: 45 13% 13%;
 
+
+
+    --gradient-primary: linear-gradient(135deg, hsl(var(--hostel-gold)), hsl(var(--hostel-secondary)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--hostel-gold) / 0.9), hsl(var(--hostel-secondary) / 0.9));
+    --gradient-burgundy: linear-gradient(135deg, hsl(var(--hostel-burgundy)), hsl(var(--hostel-burgundy) / 0.8));
+
+
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
+}
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+    width: 4px;
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #bdbdbd;
+    border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #888;
 }
 
 @theme inline {
@@ -25,6 +46,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+
 
   /* Optional: expose hostel colors to Tailwind */
   --color-hostel-primary: hsl(var(--hostel-primary));
@@ -34,10 +57,16 @@
   --color-hostel-warm-bg: hsl(var(--hostel-warm-bg));
   --color-hostel-text-dark: hsl(var(--hostel-text-dark));
 
+  --color-gradient-primary: var(--gradient-primary);
+  --color-gradient-hero: var(--gradient-hero);
+  --color-gradient-burgundy: var(--gradient-burgundy);
+      
   --background: hsl(var(--color-background));
   --foreground: hsl(var(--color-foreground)); 
   --card: hsl(var(--color-card));
   --card-foreground: hsl(var(--color-card-foreground));
+
+  
 }
 
 body {

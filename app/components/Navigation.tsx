@@ -12,18 +12,18 @@ export const Navigation = () => {
   const navItems = [
     { path: "/", label: "Home" },
     { path: "/aboutUs", label: "About" },
-    { path: "/studentRegistration", label: "Student" },
+    { path: "/studentRegistration", label: "Student Registration" },
     { path: "/contactUs", label: "Contact" },
-    { path: "/login", label: "Login" },
-    {path:"/forgot-password", label: "Forgot Password"},
-    {path:"/reset-password", label: "Reset Password"}
+
+    {path:"/vendorRegistration", label: "Vendor Registration"},
+     { path: "/login", label: "Login" },
     
   ];
 
   const isActive = (path: string) => pathname === path;
 
   return (
-    <header className="bg-gradient-to-r from-hostel-gold to-hostel-secondary text-white shadow-lg">
+    <header className="bg-gradient-to-r from-hostel-gold to-hostel-burgundy text-white shadow-lg">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}

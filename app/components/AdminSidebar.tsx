@@ -16,7 +16,10 @@ import {
 } from "lucide-react";
 
 
-const sidebarItems = [
+
+export const AdminSidebar = () => {
+  const pathname = usePathname();
+  const navItems = [
   { path: "/admin-dashboard", label: "Notification", icon: LayoutDashboard },
   { path: "/admin-dashboard/UserManagement", label: "User Management", icon: Users },
   { path: "/admin-dashboard/canteenManagement", label: "Canteen", icon: Utensils },
@@ -25,76 +28,40 @@ const sidebarItems = [
   { path: "/admin-dashboard/allVendor", label: "All Vendor", icon: Truck },
 ];
 
-export const AdminSidebar = () => {
-  const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const isActive = (path: string) => pathname === path;
-
   return (
-    <div
-      className={`bg-muted/20 border-r transition-all duration-300 flex flex-col ${
-        isCollapsed ? "w-16" : "w-64"
-      }`}
-    >
-      {/* Header */}
-      <div className="p-4 border-b">
-        <div className="flex items-center justify-between">
-          {!isCollapsed && (
-            <div>
-              <h2 className="font-bold text-lg">Tapovan Boys Hostel</h2>
-              <p className="text-sm text-muted-foreground">Admin</p>
-            </div>
-          )}
-          <button
+    <div className="w-20 md:w-64 bg-[rgba(250, 250, 247, 1)] flex flex-col min-h-screen transition-all duration-300 border-r border-gray-200">
+      {/* Logo Section */}
+      <div className="p-4 border-b pt-10 border-blue-800">
+        <div className="flex items-center justify-center md:justify-start space-x-0 md:space-x-3">
+          <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center">
             
-    
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="bg-yellow-500 text-white px-6 py-2 rounded-md hover:bg-yellow-600 transition"
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <ChevronLeft className="h-4 w-4" />
-            )}
-          </button>
+            <Star className="w-5 h-5 text-[#0A3161]" />
+        
+          </div>
+          <span className="hidden md:inline text-black font-semibold text-lg">Admin Portal</span>
         </div>
       </div>
-    
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
-        <div className="space-y-2">
-          {sidebarItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.path}
-                href={item.path}
-                className={`flex items-center px-3 py-2 rounded-lg transition-colors ${
-                  isActive(item.path)
-                    ? "bg-hostel-gold text-white"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-              >
-                <Icon className="h-5 w-5 flex-shrink-0" />
-                {!isCollapsed && (
-                  <span className="ml-3 font-medium">{item.label}</span>
-                )}
-              </Link>
-            );
-          })}
-        </div>
+      <nav className="flex-1 p-2 md:p-4 space-y-1">
+        {navItems.map((item) => {
+          const isActive = pathname === item.path;
+          return (
+            <Link
+              key={item.label}
+              href={item.path}
+              className={`flex items-center justify-center md:justify-start space-x-0 md:space-x-3 px-3 py-3 rounded-lg text-black transition-all duration-200 ${
+                isActive
+                  ? 'bg-yellow-500 text-white font-medium'
+                  : 'hover:bg-yellow-500'
+              }`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="hidden md:inline">{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
-
-      {/* Logo at bottom */}
-      <div className="p-4 border-t">
-        <div className="flex items-center justify-center">
-          <div className="w-8 h-8 bg-hostel-gold rounded-full flex items-center justify-center">
-            <Star className="h-4 w-4 text-white" />
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
