@@ -41,6 +41,7 @@ export default function StudentRegistration() {
     parent2Mobile: '',
     parent2WhatsappOrAlt: '',
     parent2Email: '',
+    parent2Password: '',
     localGuardian1Name: '',
     localGuardian1Address: '',
     localGuardian1Mobile: '',
@@ -88,9 +89,17 @@ export default function StudentRegistration() {
     }
   };
 
-  const handleLanguagesChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const options = Array.from(e.target.selectedOptions).map((option) => option.value);
-    setFormData((prev) => ({ ...prev, languagesKnown: options }));
+  const handleLanguagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+    setFormData((prev) => {
+      const currentLanguages = prev.languagesKnown;
+      if (checked) {
+        return { ...prev, languagesKnown: [...currentLanguages, value] };
+      }
+      return {
+        ...prev, languagesKnown: currentLanguages.filter((lang) => lang !== value),
+      };
+    });
   };
 
   const handlePhysicalDisabilityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,6 +136,8 @@ export default function StudentRegistration() {
       alert('Passport photo and Aadhar image are required');
       return;
     }
+
+    
     register({ credentials: formData, files });
   };
 
@@ -447,25 +458,23 @@ export default function StudentRegistration() {
                       disabled={isPending}
                     />
                   </div>
-                <div className="space-y-1">
-                    <label htmlFor="languagesKnown" className="text-sm font-medium">
-                      Languages Known
-                    </label>
-                    <select
-                      id="languagesKnown"
-                      name="languagesKnown"
-                      multiple
-                      className={inputClass}
-                      value={formData.languagesKnown}
-                      onChange={handleLanguagesChange}
-                      disabled={isPending}
-                    >
-                      <option value="english">English</option>
-                      <option value="hindi">Hindi</option>
-                      <option value="marathi">Marathi</option>
-                      <option value="tamil">Tamil</option>
-                      <option value="telugu">Telugu</option>
-                    </select>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium">Languages Known</label>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2">
+                      {['english', 'hindi', 'marathi', 'tamil', 'telugu'].map((lang) => (
+                        <label key={lang} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            value={lang}
+                            checked={formData.languagesKnown.includes(lang)}
+                            onChange={handleLanguagesChange}
+                            disabled={isPending}
+                            className="rounded border-gray-300 text-hostel-secondary focus:ring-hostel-secondary"
+                          />
+                          <span className="text-sm capitalize">{lang}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -645,6 +654,22 @@ export default function StudentRegistration() {
                       className={inputClass}
                       placeholder="Enter Parent 2 Email"
                       value={formData.parent2Email}
+                      onChange={handleInputChange}
+                      disabled={isPending}
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label htmlFor="parent2Password" className="text-sm font-medium">
+                      Parent 2 Password
+                    </label>
+                    <input
+                      id="parent2Password"
+                      name="parent2Password"
+                      type="password"   
+                      className={inputClass}
+                      placeholder="Enter Password"
+                      value={formData.parent2Password}
                       onChange={handleInputChange}
                       disabled={isPending}
                     />

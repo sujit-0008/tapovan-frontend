@@ -12,15 +12,15 @@ export const useLogin = () => {
     mutationFn: login,
     onSuccess: (data) => {
       setUser(data.userType);
-      // const roleRoutes: Record<string, string> = {
-      //   STUDENT: '/dashboard/student',
-      //   ADMIN: '/dashboard/admin',
-      //   FACILITY_ADMIN: '/dashboard/facility-admin',
-      //   STAFF: '/dashboard/staff',
-      //   PARENT: '/dashboard/parent',
-      //   VENDOR: '/dashboard/vendor',
-      // };
-      // router.push(roleRoutes[data.userType] || '/dashboard');
+      const roleRoutes: Record<string, string> = {
+        STUDENT: '/studentDashboard',
+        ADMIN: '/admin-dashboard',
+        FACILITY_ADMIN: '/admin-dashboard',
+        STAFF: '/staffDashboard',
+        PARENT: '/parentDashboard',
+        VENDOR: '/vendorDashboard',
+      };
+      router.push(roleRoutes[data.userType] || '/dashboard');
     },
     onError: (error: any) => {
       console.error('Login error:', error.response?.data?.errors || error.message);
