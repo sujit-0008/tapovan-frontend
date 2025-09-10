@@ -1,6 +1,5 @@
 
 'use client';
-
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../components/ui/card';
 import { useVendorDetails } from '../../../../hooks/useVendorDetails';
@@ -172,17 +171,35 @@ export default function VendorDetails() {
               </div>
             </div>
           )}
+
           {data?.vendor && data.vendor.status === 'PENDING' && (
             <div className="mt-6 space-y-4">
               <h3 className="font-semibold text-sm sm:text-base">Actions</h3>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
-                  onClick={handleApprove}
+                  onClick={handleApprove}   
                   disabled={isApproving}
                   className="rounded-md bg-hostel-gold px-4 sm:px-6 py-2 font-medium text-white hover:bg-hostel-gold/90 transition disabled:opacity-50"
                 >
                   {isApproving ? 'Processing...' : 'Approve'}
                 </button>
+                </div>
+              </div>
+            )
+            
+        
+            }
+          {data?.vendor  && (
+            <div className="mt-6 space-y-4">
+              <h3 className="font-semibold text-sm sm:text-base">Actions</h3>
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* <button
+                  onClick={handleApprove}
+                  disabled={isApproving}
+                  className="rounded-md bg-hostel-gold px-4 sm:px-6 py-2 font-medium text-white hover:bg-hostel-gold/90 transition disabled:opacity-50"
+                >
+                  {isApproving ? 'Processing...' : 'Approve'}
+                </button> */}
                 <button
                   onClick={() => setShowRejectionInput(true)}
                   disabled={isApproving || showRejectionInput}
@@ -225,6 +242,8 @@ export default function VendorDetails() {
               )}
             </div>
           )}
+
+
         </CardContent>
       </Card>
       <div className="text-center mt-4">

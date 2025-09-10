@@ -10,6 +10,8 @@ export const API_ROUTES = {
     REGISTER: '/api/student/register/student',
     DETAILS: '/api/admin/student/:id',
     APPROVE: '/api/admin/approve/student/:id',
+    ALL: '/api/admin/students',
+
   },
   VENDOR: {
     REGISTER: '/api/register/vendor',
@@ -19,5 +21,10 @@ export const API_ROUTES = {
   },
   NOTIFICATIONS: {
     GET: '/api/admin/notifications',
+  },
+  PAYMENT: {
+    CREATE: '/api/admin/payments',
+    UPDATE: '/api/admin//payments/:id',
+    HISTORY: '/api/admin/payments/student/:studentId',
   },
 } as const;
