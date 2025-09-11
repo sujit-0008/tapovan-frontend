@@ -19,6 +19,8 @@ export const API_ROUTES = {
     DETAILS: '/api/admin/vendors/:id',
     APPROVE: '/api/admin/approve/vendor/:id',
     ALL: '/api/admin/vendors',
+    EDIT: '/api/edit/vendor/:id',
+
   },
   NOTIFICATIONS: {
     GET: '/api/admin/notifications',

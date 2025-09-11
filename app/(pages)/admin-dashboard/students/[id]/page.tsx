@@ -1192,7 +1192,7 @@ export default function StudentDetails() {
         </div>
       )}
 
-      {}
+      
 
 
 
