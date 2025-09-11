@@ -23,9 +23,7 @@ export default function AllStudents() {
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">All Students</h1>
-      </div>
+   
 
       <Card>
         <CardHeader>
@@ -68,7 +66,7 @@ export default function AllStudents() {
           {!isLoading && !error && data?.students.length === 0 && (
             <p className="text-gray-500 text-sm text-center mt-6">No students found.</p>
           )}
-          {!isLoading && !error && data?.students.length > 0 && (
+          {!isLoading && !error && data?.students && data.students.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {data?.students.map((student) => (
                 <Card
