@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
+import { Payment } from '@/app/types/payment';
 
 export default function StudentPayment() {
   const { id } = useParams<{ id: string }>();
@@ -89,7 +90,7 @@ export default function StudentPayment() {
     });
   };
 
-  const handleEdit = (payment: any) => {
+  const handleEdit = (payment: Payment) => {
     setEditPaymentId(payment.id.toString());
     setEditForm({
       totalAnnualFees: payment.totalAnnualFees.toString(),
@@ -130,7 +131,6 @@ export default function StudentPayment() {
                 value={createForm.month}
                 onChange={(e) => setCreateForm({ ...createForm, month: e.target.value })}
                 required
-                className="rounded-xl border-gray-300 focus:ring-hostel-gold"
                 className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                 disabled={isCreating}
               />
@@ -142,8 +142,6 @@ export default function StudentPayment() {
                 value={createForm.totalAnnualFees}
                 onChange={(e) => setCreateForm({ ...createForm, totalAnnualFees: e.target.value })}
                 required
-                className="rounded-xl border-gray-300 focus:ring-hostel-gold"
-                required-
                 className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                 disabled={isCreating}
               />
@@ -155,8 +153,6 @@ export default function StudentPayment() {
                 value={createForm.totalRemainingFees}
                 onChange={(e) => setCreateForm({ ...createForm, totalRemainingFees: e.target.value })}
                 required
-                className="rounded-xl border-gray-300 focus:ring-hostel-gold"
-                required-
                 className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                 disabled={isCreating}
               />
@@ -168,8 +164,6 @@ export default function StudentPayment() {
                 value={createForm.monthlyAmount}
                 onChange={(e) => setCreateForm({ ...createForm, monthlyAmount: e.target.value })}
                 required
-                className="rounded-xl border-gray-300 focus:ring-hostel-gold"
-                required-
                 className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                 disabled={isCreating}
               />
@@ -180,7 +174,6 @@ export default function StudentPayment() {
                 type="number"
                 value={createForm.paidAmount}
                 onChange={(e) => setCreateForm({ ...createForm, paidAmount: e.target.value })}
-                className="rounded-xl border-gray-300 focus:ring-hostel-gold"
                 className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                 disabled={isCreating}
               />
@@ -191,7 +184,6 @@ export default function StudentPayment() {
                 type="date"
                 value={createForm.paymentDate}
                 onChange={(e) => setCreateForm({ ...createForm, paymentDate: e.target.value })}
-                className="rounded-xl border-gray-300 focus:ring-hostel-gold"
                 className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                 disabled={isCreating}
               />
@@ -202,7 +194,6 @@ export default function StudentPayment() {
                 type="text"
                 value={createForm.remarks}
                 onChange={(e) => setCreateForm({ ...createForm, remarks: e.target.value })}
-                className="rounded-xl border-gray-300 focus:ring-hostel-gold"
                 className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                 disabled={isCreating}
               />
@@ -244,7 +235,6 @@ export default function StudentPayment() {
                   type="number"
                   value={editForm.totalAnnualFees || ''}
                   onChange={(e) => setEditForm({ ...editForm, totalAnnualFees: e.target.value })}
-                  className="rounded-xl border-gray-300 focus:ring-hostel-gold"
                   className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                   disabled={isUpdating}
                 />
@@ -255,7 +245,6 @@ export default function StudentPayment() {
                   type="number"
                   value={editForm.totalRemainingFees || ''}
                   onChange={(e) => setEditForm({ ...editForm, totalRemainingFees: e.target.value })}
-                  className="rounded-xl border-gray-300 focus:ring-hostel-gold"
                   className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                   disabled={isUpdating}
                 />
@@ -266,7 +255,6 @@ export default function StudentPayment() {
                   type="number"
                   value={editForm.monthlyAmount || ''}
                   onChange={(e) => setEditForm({ ...editForm, monthlyAmount: e.target.value })}
-                  className="rounded-xl border-gray-300 focus:ring-hostel-gold"
                   className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                   disabled={isUpdating}
                 />
@@ -277,7 +265,6 @@ export default function StudentPayment() {
                   type="number"
                   value={editForm.paidAmount || ''}
                   onChange={(e) => setEditForm({ ...editForm, paidAmount: e.target.value })}
-                  className="rounded-xl border-gray-300 focus:ring-hostel-gold"
                   className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                   disabled={isUpdating}
                 />
@@ -288,7 +275,6 @@ export default function StudentPayment() {
                   type="date"
                   value={editForm.paymentDate || ''}
                   onChange={(e) => setEditForm({ ...editForm, paymentDate: e.target.value })}
-                  className="rounded-xl border-gray-300 focus:ring-hostel-gold"
                   className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                   disabled={isUpdating}
                 />
@@ -299,7 +285,6 @@ export default function StudentPayment() {
                   type="text"
                   value={editForm.remarks || ''}
                   onChange={(e) => setEditForm({ ...editForm, remarks: e.target.value })}
-                  className="rounded-xl border-gray-300 focus:ring-hostel-gold"
                   className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                   disabled={isUpdating}
                 />
@@ -353,7 +338,6 @@ export default function StudentPayment() {
                 setYear(e.target.value);
                 setPage(1);
               }}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border-gray-300 focus:ring-hostel-gold"
               className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 bg-muted/50 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
             />
           </div>

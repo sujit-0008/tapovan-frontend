@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useRegisterStudent } from '../../hooks/useRegisterStudent';
-import { useRouter } from 'next/navigation';
+
 import Link from 'next/link';
 
 export default function StudentRegistration() {
@@ -73,7 +73,6 @@ export default function StudentRegistration() {
     formFileUrls: null,
   });
   const { mutate: register, isPending, error } = useRegisterStudent();
-  const router = useRouter();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -137,8 +136,16 @@ export default function StudentRegistration() {
       return;
     }
 
-    
-    register({ credentials: formData, files });
+    // files.passportPhoto and files.aadharMasked are runtime-checked above;
+    // assert non-null for the call shape expected by useRegisterStudent
+    register({
+      credentials: formData,
+      files: {
+        passportPhoto: files.passportPhoto!,
+        aadharMasked: files.aadharMasked!,
+        formFileUrls: files.formFileUrls ?? undefined,
+      },
+    });
   };
 
   const inputClass =
@@ -149,7 +156,7 @@ export default function StudentRegistration() {
       <div className="container mx-auto px-4 max-w-5xl space-y-8">
         {error && (
           <div className="text-red-500 text-sm text-center">
-            {error.response?.data?.error || 'An error occurred during registration'}
+            {(error as any)?.response?.data?.error || 'An error occurred during registration'}
           </div>
         )}
         <form onSubmit={handleSubmit}>

@@ -1,4 +1,4 @@
-import { UserRole } from './index';
+
 import { Student } from './registerStudent';
 import { Vendor } from './registerVendor';
 

@@ -22,8 +22,9 @@ export const useLogin = () => {
       };
       router.push(roleRoutes[data.userType] || '/dashboard');
     },
-    onError: (error: any) => {
-      console.error('Login error:', error.response?.data?.errors || error.message);
+    onError: (error: Error | { response?: { data?: { errors?: string } } }) => {
+      const errorMessage = 'response' in error ? error.response?.data?.errors : error instanceof Error ? error.message : 'Unknown error';
+      console.error('Login error:', errorMessage);
     },
   });
 };

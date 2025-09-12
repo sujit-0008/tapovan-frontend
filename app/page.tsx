@@ -2,12 +2,20 @@
 import { Card, CardContent } from "./components/ui/card";
 import { Building, Users, Shield, Wifi } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-hostel-gold/90 to-hostel-secondary/90 text-white py-20 md:py-32">
+      <section className="relative text-white py-20 md:py-32">
+        <Image
+          src="/homePage.png"
+          alt="Background image of Tapovan Boys Hostel"
+          fill
+          className="object-cover"
+          priority
+        />
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
@@ -18,12 +26,12 @@ const Home = () => {
               Your home away from home, providing a safe and supportive environment for academic success and personal growth.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-hostel-textDark hover:bg-white/90">
-                <Link  href="/student">Register Now</Link>
-              </button>
-              <button  className="border-white text-white hover:bg-white/10">
-                <Link  href="/about">Learn More</Link>
-              </button>
+              <Link href="/studentRegistration" className="inline-block px-8 py-3 rounded-lg font-semibold transition-colors bg-white text-black :bg-white/90">
+                Register Now
+              </Link>
+              <Link href="/aboutUs" className="inline-block px-8 py-3 rounded-lg font-semibold transition-colors border border-white text-white hover:bg-white/10">
+                Learn More
+              </Link>
             </div>
           </div>
         </div>
@@ -148,12 +156,12 @@ const Home = () => {
             Join Tapovan Boys Hostel today and experience a supportive and enriching environment for your academic journey.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-hostel-secondary text-white hover:bg-hostel-secondary/90">
-              <Link  href="/student">Register Now</Link>
-            </button>
-            <button >
-              <Link   href ="/contact">Contact Us</Link>
-            </button>
+            <Link href="/studentRegistration" className="inline-block px-8 py-3 rounded-lg font-semibold transition-colors bg-hostel-secondary text-white hover:bg-hostel-secondary/90">
+              Register Now
+            </Link>
+            <Link href="/contactUs" className="inline-block px-8 py-3 rounded-lg font-semibold transition-colors border border-hostel-textDark text-hostel-textDark hover:bg-hostel-textDark/10">
+              Contact Us
+            </Link>
           </div>
         </div>
       </section>

@@ -1,11 +1,19 @@
 import { Card, CardContent } from "../../components/ui/card";
 import { Users, Heart, TrendingUp, Building, Wifi, Shield, Car, Utensils } from "lucide-react";
+import Image from "next/image";
 
 const About = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 md:py-32 bg-gradient-to-br from-hostel-gold/90 to-hostel-secondary/90">
+      <section className="relative py-20 md:py-32">
+        <Image
+          src="/aboutPage.png"
+          alt="Exterior view of Tapovan Boys Hostel"
+          fill
+          className="object-cover"
+          priority
+        />
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="container mx-auto px-4 relative z-10 text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">About Us</h1>

@@ -92,7 +92,7 @@ export default function VendorDetails() {
     });
   };
 
-  const handleFileChange = (key: 'photo' | 'kycBusinessReg' | 'kycTaxId' | 'kycAddressProof' | 'formFileUrls') => (e: React.ChangeEvent<HTMLinputElement>) => {
+  const handleFileChange = (key: 'photo' | 'kycBusinessReg' | 'kycTaxId' | 'kycAddressProof' | 'formFileUrls') => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (key === 'formFileUrls' && file.type !== 'application/pdf') {

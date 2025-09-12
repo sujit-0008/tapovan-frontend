@@ -2,7 +2,7 @@
 'use client';
 
 import { Disclosure } from '@headlessui/react'; 
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
 
 interface AccordionProps {
   title: string;

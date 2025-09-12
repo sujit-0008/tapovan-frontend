@@ -6,7 +6,7 @@ export interface VendorRegistrationCredentials {
   password?: string;
   category: string;
   gstNumber?: string;
-  numberOfEmployees?: number;
+  numberOfEmployees?: string;
   companyName?: string;
   address?: string;
   companyAddress?: string;

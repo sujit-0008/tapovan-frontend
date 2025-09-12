@@ -51,7 +51,17 @@ export default function VendorRegistration() {
       alert('Please fill in all required fields: email, mobileNumber, name, category, and photo');
       return;
     }
-    register({ credentials: formData, files });
+    if (!files.photo) return;
+    register({
+      credentials: formData,
+      files: {
+        photo: files.photo,
+        formFileUrls: files.formFileUrls || undefined,
+        kycBusinessReg: files.kycBusinessReg || undefined,
+        kycTaxId: files.kycTaxId || undefined,
+        kycAddressProof: files.kycAddressProof || undefined,
+      }
+    });
   };
 
   return (
@@ -61,12 +71,12 @@ export default function VendorRegistration() {
         <div className="bg-gradient-to-r from-hostel-gold to-hostel-burgundy p-8 rounded-lg text-center mb-6">
           <h1 className="text-3xl font-bold text-white">Vendor Registration</h1>
         </div>
-        
+
         <Card>
           <CardContent className="p-8">
             {error && (
               <div className="text-red-500 text-sm mb-4">
-                {error.response?.data?.error || 'An error occurred during registration'}
+                {(error as any).response?.data?.error || 'An error occurred during registration'}
               </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-6">

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { useNotifications } from '../../hooks/useAdminNotifications';
 import { useState } from 'react';
 import Link from 'next/link';
-
+import { Notification } from '@/app/types/adminNotification';
 export default function AdminNotifications() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<'PENDING' | 'RESOLVED'>('PENDING');
@@ -21,7 +21,7 @@ export default function AdminNotifications() {
     }
   };
 
-  const formatMessage = (notification: any) => {
+  const formatMessage = (notification: Notification) => {
     if (notification.action === 'STUDENT_REGISTRATION' && notification.student) {
       return `Student: ${notification.student.firstName} ${notification.student.lastName || ''} - New registration`;
     }
@@ -77,10 +77,10 @@ export default function AdminNotifications() {
           {error && (
             <p className="text-red-500 text-sm">Error: {error.message || 'Failed to load notifications'}</p>
           )}
-          {!isLoading && !error && data?.notifications.length === 0 && (
+          {!isLoading && !error && (!data?.notifications || data.notifications.length === 0) && (
             <p className="text-gray-500 text-sm">No notifications found.</p>
           )}
-          {!isLoading && !error && data?.notifications.length > 0 && (
+          {!isLoading && !error && data?.notifications && data.notifications.length > 0 && (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>

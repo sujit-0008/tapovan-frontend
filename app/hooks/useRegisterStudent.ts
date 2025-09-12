@@ -15,7 +15,7 @@ export const useRegisterStudent = () => {
     onSuccess: () => {
       router.push('/login?registrationSuccess=true');
     },
-    onError: (error: any) => {
+    onError: (error: Error & { response?: { data?: { error?: string } } }) => {
       console.error('Registration error:', error.response?.data?.error || error.message);
     },
   });

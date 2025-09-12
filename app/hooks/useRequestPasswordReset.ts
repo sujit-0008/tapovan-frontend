@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { requestPasswordReset } from '../services/authService';
-import { RequestPasswordResetCredentials, RequestPasswordResetResponse } from '../types';
+import { RequestPasswordResetCredentials, RequestPasswordResetResponse  } from '../types';
 import { useRouter } from 'next/navigation';
 
 export const useRequestPasswordReset = () => {
@@ -11,7 +11,7 @@ export const useRequestPasswordReset = () => {
     onSuccess: () => {
       router.push('/login?resetRequested=true');
     },
-    onError: (error: any) => {
+    onError: (error: Error & { response?: { data?: { errors?: string } } }) => {
       console.error('Request password reset error:', error.response?.data?.errors || error.message);
     },
   });

@@ -11,7 +11,7 @@ export const useResetPassword = () => {
     onSuccess: () => {
       router.push('/login?resetSuccess=true');
     },
-    onError: (error: any) => {
+    onError: (error: Error & { response?: { data?: { errors?: string[] } } }) => {
       console.error('Reset password error:', error.response?.data?.errors || error.message);
     },
   });

@@ -1,6 +1,6 @@
 
 'use client';
-
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { useVendors } from '../../../hooks/useAllVendors';
 import { useState } from 'react';
@@ -23,7 +23,7 @@ export default function AllVendors() {
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
-      
+
 
       <Card>
         <CardHeader>
@@ -66,9 +66,9 @@ export default function AllVendors() {
           {!isLoading && !error && data?.vendors.length === 0 && (
             <p className="text-gray-500 text-sm text-center mt-6">No vendors found.</p>
           )}
-          {!isLoading && !error && data?.vendors.length > 0 && (
+          {!isLoading && !error && data?.vendors && data.vendors.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {data.vendors.map((vendor) => (
+              {data?.vendors.map((vendor) => (
                 <Card
                   key={vendor.id}
                   className="shadow-md hover:shadow-lg transition rounded-2xl"
@@ -76,9 +76,11 @@ export default function AllVendors() {
                   <CardContent className="p-4 sm:p-6 space-y-4 text-center">
                     <div className="w-16 h-16 mx-auto rounded-full overflow-hidden ring-2 ring-hostel-gold flex items-center justify-center bg-hostel-gold/10">
                       {vendor.photo ? (
-                        <img
+                        <Image
                           src={vendor.photo}
                           alt={vendor.name}
+                          width={16}
+                          height={16}
                           className="w-full h-full object-cover"
                         />
                       ) : (

@@ -165,7 +165,7 @@ export default function StudentDetails() {
     });
   };
 
-  const handleFileChange = (key: 'passportPhoto' | 'aadharMasked' | 'formFileUrls') => (e: React.ChangeEvent<HTMLinputElement>) => {
+  const handleFileChange = (key: 'passportPhoto' | 'aadharMasked' | 'formFileUrls') => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (key === 'formFileUrls' && file.type !== 'application/pdf') {

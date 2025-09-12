@@ -11,7 +11,7 @@ export const useRegisterVendor = () => {
     onSuccess: () => {
       router.push('/login?vendorRegistrationSuccess=true');
     },
-    onError: (error: any) => {
+    onError: (error: Error & { response?: { data?: { error?: string } } }) => {
       console.error('Vendor registration error:', error.response?.data?.error || error.message);
     },
   });
