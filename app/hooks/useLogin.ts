@@ -11,7 +11,7 @@ export const useLogin = () => {
   return useMutation<LoginResponse, Error, LoginCredentials>({
     mutationFn: login,
     onSuccess: (data) => {
-      setUser(data.userType);
+      setUser(data.userType,data.id);
       const roleRoutes: Record<string, string> = {
         STUDENT: '/studentDashboard',
         ADMIN: '/admin-dashboard',

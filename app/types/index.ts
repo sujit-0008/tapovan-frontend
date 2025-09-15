@@ -8,6 +8,7 @@ export type UserRole = 'STUDENT' | 'ADMIN' | 'FACILITY_ADMIN' | 'STAFF' | 'PAREN
 export interface LoginResponse {
   message: string;
   userType: UserRole;
+  id:string;
 }
 
 export interface RefreshResponse {
