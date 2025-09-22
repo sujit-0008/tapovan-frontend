@@ -1,5 +1,5 @@
-```typescript
-import { cn } from '@/lib/utils';
+
+import { cn } from "../../lib/utils"
 import { ButtonHTMLAttributes } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -18,7 +18,8 @@ export function Button({ className, variant = 'default', ...props }: ButtonProps
     <button
       className={cn(baseStyles, variantStyles[variant], className)}
       {...props}
-    />
+    />  
   );
 }
-```
+
+

@@ -12,6 +12,15 @@ export const API_ROUTES = {
     APPROVE: '/api/admin/approve/student/:id',
     ALL: '/api/admin/students',
     EDIT: '/api/student/edit/student/:id',
+    //facility and meal management
+    MEAL_CHECKIN: '/api/student/meal/checkin', // New
+    SKIP_MEAL: '/api/student/meal/skip', // New
+    CREATE_BOOKING: '/api/student/bookings/create', // New
+    CREATE_SOS_ALERT: '/api/student/sos/create', // New
+    CREATE_TICKET: '/api/student/tickets/create', // New
+
+    GET_FACILITIES: '/api/student/facilities', // New (assumed)
+    GET_BOOKINGS: '/api/student/bookings', // New (assumed)
 
   },
   VENDOR: {

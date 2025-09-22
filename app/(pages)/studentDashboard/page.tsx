@@ -1,214 +1,366 @@
-"use client";
 
-import { useState } from "react";
-import { Card, CardContent } from "../../components/ui/card";
-import { QrCode } from "lucide-react";
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
+import { Select } from '../../components/ui/select';
+import { Button } from '../../components/ui/button';
+import { QRScanner } from '../../components/qr-scanner';
+import { useMealCheckin } from '../../hooks/useMealCheckin';
+import { useSkipMeal } from '../../hooks/useSkipMeal';
+import { useCreateBooking } from '../../hooks/useCreateBooking';
+import { useCreateSOSAlert } from '../../hooks/useCreateSOSAlert';
+import { useCreateTicket } from '../../hooks/useCreateTicket';
+import { useFacilities } from '../../hooks/useFacilities';
+import { useBookings } from '../../hooks/useBookings';
+import { useAuthStore } from '../../store/authStore';
 
 export default function StudentDashboard() {
-  const [mealSelections, setMealSelections] = useState({
-    breakfast: false,
-    lunch: true,
-    dinner: true
-  });
+  const router = useRouter();
+  const { user, logout } = useAuthStore();
+  const { mutate: checkinMeal, isPending: isCheckingIn } = useMealCheckin();
+  const { mutate: skipMeal, isPending: isSkipping } = useSkipMeal();
+  const { mutate: createBooking, isPending: isBooking } = useCreateBooking();
+  const { mutate: createSOSAlert, isPending: isCreatingSOS } = useCreateSOSAlert();
+  const { mutate: createTicket, isPending: isCreatingTicket } = useCreateTicket();
+  const { data: facilitiesData, isLoading: isFacilitiesLoading } = useFacilities();
+  const { data: bookingsData, isLoading: isBookingsLoading } = useBookings();
 
-  const gameRoomBookings = [
-    { date: "2024-07-5", time: "02:00 PM - 04:00 PM" },
-    { date: "2024-07-13", time: "06:00 PM - 08:00 PM" },
-    { date: "2024-07-29", time: "10:00 AM - 12:00 PM" }
-  ];
+  const [mealSkip, setMealSkip] = useState({ mealType: '', date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0] });
+  const [bookingForm, setBookingForm] = useState({ facilityId: '', slotStart: '', slotEnd: '' });
+  const [ticketForm, setTicketForm] = useState({ category: '', description: '', severity: '', roomNumber: '', photo: null as File | null });
 
-  const entryExitData = [
-    { date: "2024-07-26", time: "08:00 AM", status: "Entered" },
-    { date: "2024-07-25", time: "06:00 PM", status: "Exited" },
-    { date: "2024-07-25", time: "08:00 AM", status: "Entered" },
-    { date: "2024-07-24", time: "06:00 PM", status: "Exited" },
-    { date: "2024-07-24", time: "08:00 AM", status: "Entered" }
-  ];
+  const handleMealCheckin = (qrData: string) => {
+    checkinMeal({ data: qrData }, {
+      onSuccess: () => alert('Meal checked in successfully'),
+      onError: (error) => alert(error.message || 'Failed to check in meal'),
+    });
+  };
 
-  const handleMealToggle = (meal: string) => {
-    setMealSelections(prev => ({
-      ...prev,
-      [meal]: !prev[meal as keyof typeof prev]
-    }));
+  const handleSkipMeal = (e: React.FormEvent) => {
+    e.preventDefault();
+    skipMeal(mealSkip, {
+      onSuccess: () => {
+        alert('Meal skip recorded');
+        setMealSkip({ ...mealSkip, mealType: '' });
+      },
+      onError: (error) => alert(error.message || 'Failed to skip meal'),
+    });
+  };
+
+  const handleBookingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createBooking(
+      {
+        facilityId: parseInt(bookingForm.facilityId),
+        slotStart: new Date(bookingForm.slotStart).toISOString(),
+        slotEnd: new Date(bookingForm.slotEnd).toISOString(),
+      },
+      {
+        onSuccess: () => {
+          alert('Booking created successfully');
+          setBookingForm({ facilityId: '', slotStart: '', slotEnd: '' });
+        },
+        onError: (error) => alert(error.message || 'Failed to create booking'),
+      }
+    );
+  };
+
+  const handleSOSAlert = () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          createSOSAlert(
+            { latitude: position.coords.latitude, longitude: position.coords.longitude },
+            {
+              onSuccess: () => alert('SOS alert sent successfully'),
+              onError: (error) => alert(error.message || 'Failed to send SOS alert'),
+            }
+          );
+        },
+        (error) => alert('Failed to get location: ' + error.message)
+      );
+    } else {
+      alert('Geolocation not supported');
+    }
+  };
+
+  const handleTicketSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createTicket(
+      { data: ticketForm, file: ticketForm.photo || undefined },
+      {
+        onSuccess: () => {
+          alert('Ticket created successfully');
+          setTicketForm({ category: '', description: '', severity: '', roomNumber: '', photo: null });
+        },
+        onError: (error) => alert(error.message || 'Failed to create ticket'),
+      }
+    );
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      {/* <div className="bg-gradient-to-r from-hostel-gold to-hostel-burgundy p-6 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-white">Student Dashboard</h1>
-        <div className="flex space-x-4">
-          <button className="px-4 py-2 rounded-md border border-white text-white hover:bg-white hover:text-hostel-burgundy transition">
-            Dashboard
-          </button>
-          <button className="px-4 py-2 rounded-md border border-white text-white hover:bg-white hover:text-hostel-burgundy transition">
+    <div className="min-h-screen bg-background p-4 sm:p-6 space-y-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Student Dashboard</h1>
+        <div className="flex gap-4">
+          <Button variant="outline" onClick={() => router.push('/student/profile')}>
             Profile
-          </button>
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-            <span className="text-hostel-burgundy font-bold">A</span>
-          </div>
-        </div>
-      </div> */}
-
-      <div className="max-w-6xl mx-auto p-6 space-y-8">
-        {/* SOS Medical Alert */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">SOS Medical Alert</h2>
-          <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md">
-            SOS Medical Alert
-          </button>
-        </div>
-
-        {/* Meal QR Code */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Meal QR Code</h2>
-          <button className="flex items-center bg-hostel-gold hover:bg-hostel-gold/90 text-white px-6 py-2 rounded-md">
-            <QrCode className="mr-2 h-4 w-4" />
-            Scan QR Code
-          </button>
-        </div>
-
-        {/* Tomorrow Meal */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Tomorrow Meal</h2>
-          <Card>
-            <CardContent className="p-6">
-              <table className="w-full border border-gray-200 rounded-md">
-                <thead className="bg-muted/40">
-                  <tr>
-                    <th className="px-4 py-2 text-left"></th>
-                    <th className="px-4 py-2 text-center">Yes</th>
-                    <th className="px-4 py-2 text-center">No</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {["breakfast", "lunch", "dinner"].map((meal, idx) => (
-                    <tr key={meal} className={idx % 2 ? "bg-muted/20" : ""}>
-                      <td className="px-4 py-2 font-medium capitalize">{meal}</td>
-                      <td className="px-4 py-2 text-center">
-                        <input
-                          type="radio"
-                          name={meal}
-                          checked={mealSelections[meal as keyof typeof mealSelections]}
-                          onChange={() => handleMealToggle(meal)}
-                          className="w-4 h-4"
-                        />
-                      </td>
-                      <td className="px-4 py-2 text-center">
-                        <input
-                          type="radio"
-                          name={meal}
-                          checked={!mealSelections[meal as keyof typeof mealSelections]}
-                          onChange={() => handleMealToggle(meal)}
-                          className="w-4 h-4"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* In-Room Service Ticket */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">In-Room Service Ticket</h2>
-          <button className="bg-hostel-gold hover:bg-hostel-gold/90 text-white px-6 py-2 rounded-md">
-            Room service Ticket
-          </button>
-        </div>
-
-        {/* Medical Records */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Medical Records</h2>
-          <button className="bg-hostel-gold hover:bg-hostel-gold/90 text-white px-6 py-2 rounded-md">
-            View Medical Records
-          </button>
-        </div>
-
-        {/* Game Room Bookings */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Game Room Bookings</h2>
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-lg font-semibold">July 2024</span>
-              <div className="flex space-x-2">
-                <button className="px-2 py-1 border rounded hover:bg-muted">‹</button>
-                <button className="px-2 py-1 border rounded hover:bg-muted">›</button>
-              </div>
-            </div>
-            <div className="grid grid-cols-7 gap-2 mb-4">
-              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
-                <div key={day} className="text-center font-semibold p-2">{day}</div>
-              ))}
-              {Array.from({ length: 31 }, (_, i) => {
-                const day = i + 1;
-                const isHighlighted = day === 4;
-                return (
-                  <div
-                    key={day}
-                    className={`text-center p-2 rounded cursor-pointer ${
-                      isHighlighted ? 'bg-hostel-gold text-white' : 'hover:bg-muted'
-                    }`}
-                  >
-                    {day}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <table className="w-full border border-gray-200 rounded-md">
-            <thead className="bg-muted/40">
-              <tr>
-                <th className="px-4 py-2 text-left">Date</th>
-                <th className="px-4 py-2 text-left">Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {gameRoomBookings.map((booking, index) => (
-                <tr key={index} className={index % 2 ? "bg-muted/20" : ""}>
-                  <td className="px-4 py-2">{booking.date}</td>
-                  <td className="px-4 py-2">{booking.time}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Student Entry/Exit */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Student Entry/Exit</h2>
-          <table className="w-full border border-gray-200 rounded-md">
-            <thead className="bg-muted/40">
-              <tr>
-                <th className="px-4 py-2 text-left">Date</th>
-                <th className="px-4 py-2 text-left">Time</th>
-                <th className="px-4 py-2 text-left">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entryExitData.map((record, index) => (
-                <tr key={index} className={index % 2 ? "bg-muted/20" : ""}>
-                  <td className="px-4 py-2">{record.date}</td>
-                  <td className="px-4 py-2">{record.time}</td>
-                  <td className="px-4 py-2">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        record.status === "Entered"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-200 text-gray-700"
-                      }`}
-                    >
-                      {record.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          </Button>
+          <Button variant="outline" onClick={logout}>
+            Logout
+          </Button>
         </div>
       </div>
+
+      {/* SOS Alert */}
+      <Card>
+        <CardHeader>
+          <CardTitle>SOS Medical Alert</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button
+            className="bg-red-600 hover:bg-red-700 text-white"
+            onClick={handleSOSAlert}
+            disabled={isCreatingSOS}
+          >
+            {isCreatingSOS ? 'Sending...' : 'Send SOS Alert'}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Meal QR Scanner */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Meal Check-In</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <QRScanner onScan={handleMealCheckin} />
+        </CardContent>
+      </Card>
+
+      {/* Skip Meal */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Skip Tomorrow's Meal</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSkipMeal} className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Date</label>
+                <Input
+                  type="date"
+                  value={mealSkip.date}
+                  readOnly
+                  className="rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Meal Type *</label>
+                <Select
+                  value={mealSkip.mealType}
+                  onChange={(e) => setMealSkip({ ...mealSkip, mealType: e.target.value })}
+                  required
+                  className="rounded-xl"
+                  disabled={isSkipping}
+                >
+                  <option value="">Select Meal</option>
+                  {['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK', 'ALL'].map((type) => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+            <Button type="submit" disabled={isSkipping}>
+              {isSkipping ? 'Skipping...' : 'Skip Meal'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Facility Booking */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Create Facility Booking</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleBookingSubmit} className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Facility *</label>
+                <Select
+                  value={bookingForm.facilityId}
+                  onChange={(e) => setBookingForm({ ...bookingForm, facilityId: e.target.value })}
+                  required
+                  className="rounded-xl"
+                  disabled={isBooking || isFacilitiesLoading}
+                >
+                  <option value="">Select Facility</option>
+                  {facilitiesData?.facilities.map((facility) => (
+                    <option key={facility.id} value={facility.id}>
+                      {facility.name} ({facility.operationalHours})
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Start Time *</label>
+                <Input
+                  type="datetime-local"
+                  value={bookingForm.slotStart}
+                  onChange={(e) => setBookingForm({ ...bookingForm, slotStart: e.target.value })}
+                  required
+                  className="rounded-xl"
+                  disabled={isBooking}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">End Time *</label>
+                <Input
+                  type="datetime-local"
+                  value={bookingForm.slotEnd}
+                  onChange={(e) => setBookingForm({ ...bookingForm, slotEnd: e.target.value })}
+                  required
+                  className="rounded-xl"
+                  disabled={isBooking}
+                />
+              </div>
+            </div>
+            <Button type="submit" disabled={isBooking}>
+              {isBooking ? 'Booking...' : 'Create Booking'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Create Ticket */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Create In-Room Service Ticket</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleTicketSubmit} className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Category *</label>
+                <Select
+                  value={ticketForm.category}
+                  onChange={(e) => setTicketForm({ ...ticketForm, category: e.target.value })}
+                  required
+                  className="rounded-xl"
+                  disabled={isCreatingTicket}
+                >
+                  <option value="">Select Category</option>
+                  {['MAINTENANCE', 'CLEANING', 'OTHER'].map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Severity</label>
+                <Select
+                  value={ticketForm.severity}
+                  onChange={(e) => setTicketForm({ ...ticketForm, severity: e.target.value })}
+                  className="rounded-xl"
+                  disabled={isCreatingTicket}
+                >
+                  <option value="">Select Severity</option>
+                  {['LOW', 'MEDIUM', 'HIGH'].map((sev) => (
+                    <option key={sev} value={sev}>{sev}</option>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Room Number</label>
+                <Input
+                  value={ticketForm.roomNumber}
+                  onChange={(e) => setTicketForm({ ...ticketForm, roomNumber: e.target.value })}
+                  className="rounded-xl"
+                  disabled={isCreatingTicket}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Photo (max 200KB)</label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file && file.size > 200 * 1024) {
+                      alert('File size must be less than 200KB');
+                      return;
+                    }
+                    setTicketForm({ ...ticketForm, photo: file || null });
+                  }}
+                  className="rounded-xl"
+                  disabled={isCreatingTicket}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Description *</label>
+              <Input
+                value={ticketForm.description}
+                onChange={(e) => setTicketForm({ ...ticketForm, description: e.target.value })}
+                required
+                className="rounded-xl min-h-[100px]"
+                disabled={isCreatingTicket}
+              />
+            </div>
+            <Button type="submit" disabled={isCreatingTicket}>
+              {isCreatingTicket ? 'Creating...' : 'Create Ticket'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Bookings */}
+      <Card>
+        <CardHeader>
+          <CardTitle>My Bookings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isBookingsLoading ? (
+            <p className="text-sm text-gray-500">Loading bookings...</p>
+          ) : !bookingsData?.bookings.length ? (
+            <p className="text-sm text-gray-500">No bookings found</p>
+          ) : (
+            <table className="w-full border border-gray-200 rounded-xl">
+              <thead className="bg-muted/40">
+                <tr>
+                  <th className="px-4 py-2 text-left text-sm">Facility</th>
+                  <th className="px-4 py-2 text-left text-sm">Date</th>
+                  <th className="px-4 py-2 text-left text-sm">Time</th>
+                  <th className="px-4 py-2 text-left text-sm">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookingsData.bookings.map((booking, index) => (
+                  <tr key={booking.id} className={index % 2 ? 'bg-muted/20' : ''}>
+                    <td className="px-4 py-2 text-sm">{booking.facility.name}</td>
+                    <td className="px-4 py-2 text-sm">{new Date(booking.slotStart).toLocaleDateString()}</td>
+                    <td className="px-4 py-2 text-sm">
+                      {new Date(booking.slotStart).toLocaleTimeString()} - {new Date(booking.slotEnd).toLocaleTimeString()}
+                    </td>
+                    <td className="px-4 py-2 text-sm">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'
+                        }`}
+                      >
+                        {booking.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
