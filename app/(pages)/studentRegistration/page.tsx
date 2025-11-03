@@ -122,9 +122,9 @@ export default function StudentRegistration() {
       'emergencyContactName',
       'emergencyContactNumber',
       'emergencyContactRelation',
-      'parent1Name',
-      'parent1Address',
-      'parent1Mobile',
+      // 'parent1Name',
+      // 'parent1Address',
+      // 'parent1Mobile',
     ];
     const missingFields = requiredFields.filter((field) => !formData[field as keyof typeof formData]);
     if (missingFields.length > 0) {
@@ -489,7 +489,7 @@ export default function StudentRegistration() {
           </Card>
 
           {/* Parent & Guardian Registration */}
-          <Card>
+          {/* <Card>
             <CardHeader
               className="bg-gradient-to-r from-hostel-gold to-hostel-burgundy text-white cursor-pointer rounded-t-xl"
               onClick={() => setParentFormOpen(!parentFormOpen)}
@@ -673,7 +673,7 @@ export default function StudentRegistration() {
                     <input
                       id="parent2Password"
                       name="parent2Password"
-                      type="password"   
+                      type="password"
                       className={inputClass}
                       placeholder="Enter Password"
                       value={formData.parent2Password}
@@ -846,10 +846,10 @@ export default function StudentRegistration() {
                 </div>
               </CardContent>
             )}
-          </Card>
+          </Card> */}
 
           {/* Medical History */}
-          <Card>
+          {/* <Card>
             <CardHeader
               className="bg-gradient-to-r from-hostel-gold to-hostel-burgundy text-white cursor-pointer rounded-t-xl"
               onClick={() => setMedicalFormOpen(!medicalFormOpen)}
@@ -1019,7 +1019,7 @@ export default function StudentRegistration() {
                 </div>
               </CardContent>
             )}
-          </Card>
+          </Card> */}
 
           {/* Submit */}
           <div className="text-center mt-8">

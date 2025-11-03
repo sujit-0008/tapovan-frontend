@@ -30,6 +30,15 @@ export const API_ROUTES = {
     ALL: '/api/admin/vendors',
     EDIT: '/api/edit/vendor/:id',
   },
+
+  STAFF: {
+    CREATE: '/api/admin/user/createStaff',
+    ALL: '/api/admin/user/staff',
+    EDIT: '/api/admin/user/editStaff/:id',
+    DELETE: '/api/admin/user/deleteStaff/:id',
+    VENDORS: '/api/admin/user/vendorsList',
+  },
+
   CANTEEN: {
     GENERATE_MEAL_QR: '/api/generate-qr', // New
     CREATE_FOOD_MENU: '/api/food-menu', // New

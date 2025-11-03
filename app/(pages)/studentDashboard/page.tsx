@@ -106,7 +106,7 @@ export default function StudentDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Student Dashboard</h1>
         <div className="flex gap-4">
-          <Button variant="outline" onClick={() => router.push('/student/profile')}>
+          <Button variant="outline" onClick={() => router.push(`/studentDashboard/profile/${user?.id}`)}>
             Profile
           </Button>
           <Button variant="outline" onClick={logout}>
@@ -133,12 +133,12 @@ export default function StudentDashboard() {
 
       {/* Meal QR Scanner */}
       <Card>
-        <CardHeader>
+      <CardHeader>
           <CardTitle>Meal Check-In</CardTitle>
         </CardHeader>
         <CardContent>
           <QRScanner onScan={handleMealCheckin} />
-        </CardContent>
+        </CardContent> 
       </Card>
 
       {/* Skip Meal */}

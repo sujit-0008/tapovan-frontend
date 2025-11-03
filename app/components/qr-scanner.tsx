@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Camera, CameraOff, Loader2 } from 'lucide-react';
+import { Camera, CameraOff, LoaderCircle } from 'lucide-react';
 import jsQR from 'jsqr';
 import { Button } from './ui/button';
 
@@ -18,18 +18,18 @@ export function QRScanner({ onScan }: QRScannerProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let stream: MediaStream | null = null;
+    let mediaStream: MediaStream | null = null;
     let animationFrameId: number;
 
     const startScanning = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        stream = await navigator.mediaDevices.getUserMedia({
+        mediaStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment' },
         });
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+          videoRef.current.srcObject = mediaStream;
           await videoRef.current.play();
           animationFrameId = requestAnimationFrame(tick);
         }
@@ -42,7 +42,6 @@ export function QRScanner({ onScan }: QRScannerProps) {
     };
 
     const tick = () => {
-      console.log('Scanning frame, ID:', animationFrameId);
       if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
         const canvas = canvasRef.current;
         const context = canvas?.getContext('2d');
@@ -61,23 +60,20 @@ export function QRScanner({ onScan }: QRScannerProps) {
             setIsScanning(false);
             return; // Stop the loop
           }
-        }
-      }
-      animationFrameId = requestAnimationFrame(tick);
+        } 
+      } 
+      animationFrameId = requestAnimationFrame(tick); 
     };
 
     if (isScanning) {
       startScanning();
     }
 
-    // This is the cleanup function. It runs when the effect is "cleaned up".
-    // (e.g., when `isScanning` changes from true to false, or when the component unmounts)
     return () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
+      if (mediaStream) {
+        mediaStream.getTracks().forEach((track) => track.stop());
       }
       if (animationFrameId) {
-        console.log('Cancelling animation frame, ID:', animationFrameId);
         cancelAnimationFrame(animationFrameId);
       }
     };
@@ -96,7 +92,7 @@ export function QRScanner({ onScan }: QRScannerProps) {
     <div className="space-y-4">
       <Button onClick={handleButtonClick} disabled={isLoading}>
         {isLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <Camera className="mr-2 h-4 w-4" />
         )}
