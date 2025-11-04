@@ -1,139 +1,217 @@
-"use client"
-import { Card, CardContent } from "../../components/ui/card";
+
+'use client';
+
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { useParentAttendance } from '../../hooks/useParentAttendance';
+import { useAuthStore } from '../../store/authStore';
+import { Button } from '@/app/components/ui/button';
 
 export default function ParentDashboard() {
-  const foodIntakeData = [
-    { date: "2024-07-22", breakfast: "Present", lunch: "Absent", dinner: "Present" },
-    { date: "2024-07-21", breakfast: "Present", lunch: "Present", dinner: "Present" },
-    { date: "2024-07-20", breakfast: "Absent", lunch: "Present", dinner: "Absent" },
-    { date: "2024-07-19", breakfast: "Present", lunch: "Present", dinner: "Present" },
-    { date: "2024-07-18", breakfast: "Present", lunch: "Absent", dinner: "Present" },
-    { date: "2024-07-17", breakfast: "Absent", lunch: "Present", dinner: "Absent" },
-    { date: "2024-07-16", breakfast: "Present", lunch: "Present", dinner: "Present" }
-  ];
+  const { user } = useAuthStore();
+  const { data, isLoading, error } = useParentAttendance();
 
-  const entryExitData = [
-    { date: "2024-07-22", entryTime: "08:00 AM", exitTime: "06:00 PM" },
-    { date: "2024-07-21", entryTime: "08:30 AM", exitTime: "05:30 PM" },
-    { date: "2024-07-20", entryTime: "09:00 AM", exitTime: "06:30 PM" },
-    { date: "2024-07-19", entryTime: "08:15 AM", exitTime: "05:45 PM" },
-    { date: "2024-07-18", entryTime: "08:45 AM", exitTime: "06:15 PM" },
-    { date: "2024-07-17", entryTime: "09:15 AM", exitTime: "05:15 PM" },
-    { date: "2024-07-16", entryTime: "08:00 AM", exitTime: "06:00 PM" }
-  ];
+  const [activeSection, setActiveSection] = useState('foodIntake');
+
+  if (isLoading) return <p className="p-4 sm:p-6 text-gray-500 text-sm">Loading dashboard...</p>;
+  if (error) return <p className="p-4 sm:p-6 text-red-500 text-sm">Error: {error.message || 'Failed to load dashboard'}</p>;
+  if (!data) return <p className="p-4 sm:p-6 text-gray-500 text-sm">No data available.</p>;
+
+  const { studentInfo, attendance, mealAttendance, checkupReports } = data;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      {/* <div className="bg-gradient-to-r from-hostel-gold to-hostel-burgundy p-6 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-white">Parent Dashboard</h1>
-        <div className="flex space-x-4 items-center">
-          <button className="px-4 py-2 rounded border text-white border-white hover:bg-white hover:text-hostel-burgundy transition">
-            Dashboard
-          </button>
-          <button className="px-4 py-2 rounded border text-white border-white hover:bg-white hover:text-hostel-burgundy transition">
+    <div className="min-h-screen bg-background p-4 sm:p-6 space-y-8">
+      {/* <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Parent Dashboard</h1>
+        <div className="flex gap-4">
+          <Button variant="outline" onClick={() => router.push('/parent/profile')}>
             Profile
-          </button>
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-            <span className="text-hostel-burgundy font-bold">A</span>
-          </div>
+          </Button>
+          <Button variant="outline" onClick={() => user?.logout()}>
+            Logout
+          </Button>
         </div>
       </div> */}
 
-      <div className="max-w-6xl mx-auto p-6 space-y-8">
-        {/* Notification Section */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Notification</h2>
-        </div>
+      {/* Notification Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Student Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+        {/* <p className="text-lg font-semibold ">
+          ID:  {studentInfo.id}
+        </p> */}
+        <p className="text-lg font-semibold ">
+          Name: {studentInfo.firstName} {studentInfo.lastName}
+        </p>
+        <p className="text-lg font-semibold ">
+          Roll Number: {studentInfo.rollNumber}
+        </p>
+        <p className="text-lg font-semibold ">
+          Mobile Number: {studentInfo.mobileNumber}</p>
+        
 
-        {/* Medical Records */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Medical Records</h2>
-          <button className="px-4 py-2 rounded bg-hostel-gold hover:bg-hostel-gold/90 text-white transition">
-            View Medical Records
-          </button>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Student Food Intake */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Student Food Intake</h2>
-          <Card>
-            <CardContent className="p-6 overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-muted/50">
-                    <th className="text-left font-semibold p-2">Date</th>
-                    <th className="text-left font-semibold p-2">Breakfast</th>
-                    <th className="text-left font-semibold p-2">Lunch</th>
-                    <th className="text-left font-semibold p-2">Dinner</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {foodIntakeData.map((record, index) => (
-                    <tr key={index} className={index % 2 === 0 ? "bg-muted/20" : ""}>
-                      <td className="p-2 text-hostel-gold font-medium">{record.date}</td>
-                      <td className="p-2">
-                        <span
-                          className={`px-2 py-1 rounded text-sm ${
-                            record.breakfast === "Present" ? "text-green-700" : "text-red-700"
-                          }`}
-                        >
-                          {record.breakfast}
-                        </span>
-                      </td>
-                      <td className="p-2">
-                        <span
-                          className={`px-2 py-1 rounded text-sm ${
-                            record.lunch === "Present" ? "text-green-700" : "text-red-700"
-                          }`}
-                        >
-                          {record.lunch}
-                        </span>
-                      </td>
-                      <td className="p-2">
-                        <span
-                          className={`px-2 py-1 rounded text-sm ${
-                            record.dinner === "Present" ? "text-green-700" : "text-red-700"
-                          }`}
-                        >
-                          {record.dinner}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
-        </div>
+      {/* Medical Records */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Medical Records</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {checkupReports.length > 0 ? (
+              checkupReports.map((report, index) => (
+                <Card key={index} className="bg-muted/20">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg sm:text-xl mb-2">
+                          {new Date(report.date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-2">Report: {report.report}</p>
+                        <p className="text-sm text-gray-500 mb-2">Prescription: {report.prescription}</p>
+                        <p className="text-sm text-gray-500 mb-2">Notes: {report.notes}</p>
+                        <p className="text-sm text-gray-500">
+                          Vendor: {report.vendor.name} ({report.vendor.category})
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">No medical checkups .</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Student Entry/Exit Timings */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Student Entry/Exit Timings</h2>
-          <Card>
-            <CardContent className="p-6 overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-muted/50">
-                    <th className="text-left font-semibold p-2">Date</th>
-                    <th className="text-left font-semibold p-2">Entry Time</th>
-                    <th className="text-left font-semibold p-2">Exit Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {entryExitData.map((record, index) => (
-                    <tr key={index} className={index % 2 === 0 ? "bg-muted/20" : ""}>
-                      <td className="p-2 text-hostel-gold font-medium">{record.date}</td>
-                      <td className="p-2 text-blue-700">{record.entryTime}</td>
-                      <td className="p-2 text-purple-700">{record.exitTime}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      {/* Student Food Intake */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Student Food Intake</CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-muted/50">
+                <th className="text-left font-semibold p-2 text-sm sm:text-base">Date</th>
+                <th className="text-left font-semibold p-2 text-sm sm:text-base">Breakfast</th>
+                <th className="text-left font-semibold p-2 text-sm sm:text-base">Lunch</th>
+                <th className="text-left font-semibold p-2 text-sm sm:text-base">Dinner</th>
+                <th className="text-left font-semibold p-2 text-sm sm:text-base">Snack</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mealAttendance.map((attendance, index) => (
+                <tr key={index} className={index % 2 === 0 ? 'bg-muted/20' : ''}>
+                  <td className="p-2 text-sm sm:text-base font-medium text-hostel-gold">
+                    {new Date(attendance.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </td>
+                  <td className="p-2">
+                    <span
+                      className={`px-2 py-1 rounded text-xs sm:text-sm font-medium ${attendance.mealType === 'BREAKFAST' && attendance.present
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-red-100 text-red-700'
+                        }`}
+                    >
+                      {attendance.mealType === 'BREAKFAST' ? (attendance.present ? 'Present' : 'Absent') : 'N/A'}
+                    </span>
+                  </td>
+                  <td className="p-2">
+                    <span
+                      className={`px-2 py-1 rounded text-xs sm:text-sm font-medium ${attendance.mealType === 'LUNCH' && attendance.present
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-red-100 text-red-700'
+                        }`}
+                    >
+                      {attendance.mealType === 'LUNCH' ? (attendance.present ? 'Present' : 'Absent') : 'N/A'}
+                    </span>
+                  </td>
+                  <td className="p-2">
+                    <span
+                      className={`px-2 py-1 rounded text-xs sm:text-sm font-medium ${attendance.mealType === 'DINNER' && attendance.present
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-red-100 text-red-700'
+                        }`}
+                    >
+                      {attendance.mealType === 'DINNER' ? (attendance.present ? 'Present' : 'Absent') : 'N/A'}
+                    </span>
+                  </td>
+                  <td className="p-2">
+                    <span
+                      className={`px-2 py-1 rounded text-xs sm:text-sm font-medium ${attendance.mealType === 'SNACK' && attendance.present
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-red-100 text-red-700'
+                        }`}
+                    >
+                      {attendance.mealType === 'SNACK' ? (attendance.present ? 'Present' : 'Absent') : 'N/A'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {mealAttendance.length === 0 && (
+            <p className="text-sm text-gray-500 text-center mt-6">No food intake data available.</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Student Entry/Exit Timings */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Student Entry/Exit Timings</CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-muted/50">
+                <th className="text-left font-semibold p-2 text-sm sm:text-base">Date</th>
+                <th className="text-left font-semibold p-2 text-sm sm:text-base">Entry Time</th>
+                <th className="text-left font-semibold p-2 text-sm sm:text-base">Exit Time</th>
+                <th className="text-left font-semibold p-2 text-sm sm:text-base">Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {attendance.map((record, index) => (
+                <tr key={record.id} className={index % 2 === 0 ? 'bg-muted/20' : ''}>
+                  <td className="p-2 text-sm sm:text-base font-medium text-hostel-gold">
+                    {new Date(record.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </td>
+                  <td className="p-2 text-sm sm:text-base text-blue-700">
+                    {record.inTime ? new Date(record.inTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                  </td>
+                  <td className="p-2 text-sm sm:text-base text-purple-700">
+                    {record.outTime ? new Date(record.outTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                  </td>
+                  <td className="p-2 text-sm sm:text-base text-gray-500">
+                    {record.remarks || 'N/A'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {attendance.length === 0 && (
+            <p className="text-sm text-gray-500 text-center mt-6">No entry/exit data available.</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

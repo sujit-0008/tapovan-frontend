@@ -302,16 +302,28 @@ export default function VendorDashboard() {
             <p className="text-sm text-gray-500">No meal skips for tomorrow</p>
           ) : (
             <div className="space-y-4">
-              {skipsData.skips.map((skip) => (
-                <Card key={skip.id} className="bg-muted/20">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                {Object.entries(
+                  skipsData.skips.reduce((acc, skip) => {
+                    acc[skip.mealType] = (acc[skip.mealType] || 0) + 1;
+                    return acc;
+                  }, {} as Record<string, number>)
+                ).map(([mealType, count]) => (
+                  <div key={mealType} className="p-3 bg-muted/30 rounded-lg">
+                    <p className="text-sm font-medium">{mealType}: <span className='text-green'>{count}</span> </p>
+                  </div>
+                ))}
+              </div> 
+              {/* <Card key={skip.id} className="bg-muted/20">
                   <CardContent className="p-4 sm:p-6">
                     <p className="text-sm font-medium text-gray-700">
                       {skip.student.firstName} {skip.student.lastName} ({skip.student.email})
                     </p>
                     <p className="text-sm text-gray-500">Date: {new Date(skip.date).toLocaleDateString()}</p>
                   </CardContent>
-                </Card>
-              ))}
+                </Card> */}
+                
+              {/* ))} */}
             </div>
           )}
         </CardContent>

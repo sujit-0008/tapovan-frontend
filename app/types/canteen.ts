@@ -69,7 +69,9 @@ export interface MealSkip {
   id: number;
   studentId: number;
   date: string;
+  mealType: string;
   createdAt: string;
+
   student: {
     firstName: string;
     lastName: string;

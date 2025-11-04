@@ -47,6 +47,9 @@ export const API_ROUTES = {
     GET_FOOD_MENUS: '/api/admin/canteen/food-menus', // New
 
   },
+   PARENT: {
+    GET_ATTENDANCE: '/api/parent/parentinfo', // New: Parent attendance
+  },
 
 
   NOTIFICATIONS: {

@@ -60,7 +60,7 @@ export default function StaffManagement() {
 
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const skills = formData.skills ? JSON.stringify(formData.skills.split(',').map(s => s.trim())) : '[]';
+    const skills = formData.skills ? formData.skills.split(',').map(s => s.trim()) : [];
     const data = {
       name: formData.name,
       phone: formData.phone,
