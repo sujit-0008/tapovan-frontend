@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 //import { Select } from '@/components/ui/select';
 import { Accordion } from '../../components/ui/accordion';
 import { QRCodeCanvas } from 'qrcode.react';
+import { AlertCircle, CheckCircle } from 'lucide-react';
 import { useGenerateMealQR } from '../../hooks/useGenerateMealQR';
 import { useCreateFoodMenu } from '../../hooks/useCreateFoodMenu';
 import { useUpdateFoodMenu } from '../../hooks/useUpdateFoodMenu';
@@ -39,6 +40,13 @@ export default function VendorDashboard() {
 
   const handleQrSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form
+    if (!qrForm.mealType || !qrForm.date || !qrForm.time) {
+      alert('Please fill in all fields');
+      return;
+    }
+
     generateQR({
       mealType: qrForm.mealType as 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK',
       date: qrForm.date,
@@ -173,7 +181,23 @@ export default function VendorDashboard() {
           {qrData?.qrUrl && (
             <div className="mt-4 sm:mt-6 text-center">
               <p className="text-sm text-gray-500 mb-2">QR Code for {qrForm.mealType}</p>
-              <QRCodeCanvas value={qrData.qrUrl} size={200} />
+              <div className="flex justify-center">
+                <QRCodeCanvas 
+                  value={qrData.qrUrl} 
+                  size={256}
+                  level="H"
+                  includeMargin={true}
+                  renderAs="canvas"
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-2">Date: {qrForm.date} | Time: {qrForm.time}</p>
+              <a 
+                href={qrData.qrUrl} 
+                download={`meal-qr-${qrForm.mealType}-${qrForm.date}.png`}
+                className="mt-3 inline-block px-4 py-2 rounded-xl bg-hostel-gold hover:bg-hostel-gold/90 text-white text-sm font-medium transition"
+              >
+                Download QR Code
+              </a>
             </div>
           )}
         </CardContent>

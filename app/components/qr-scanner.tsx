@@ -16,53 +16,110 @@ export function QRScanner({ onScan }: QRScannerProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const animationFrameIdRef = useRef<number | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const scannedRef = useRef(false);
 
   useEffect(() => {
-    let mediaStream: MediaStream | null = null;
-    let animationFrameId: number;
-
     const startScanning = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' },
-        });
+        scannedRef.current = false;
+
+        // Request camera with optimized constraints for both desktop and mobile
+        const constraints = {
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            // Add focus mode for better scanning
+            focusMode: 'continuous' as any,
+          },
+          audio: false,
+        };
+
+        mediaStreamRef.current = await navigator.mediaDevices.getUserMedia(constraints);
+
         if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-          await videoRef.current.play();
-          animationFrameId = requestAnimationFrame(tick);
+          videoRef.current.srcObject = mediaStreamRef.current;
+          
+          // Ensure video plays on mobile (playsinline is critical for iOS)
+          videoRef.current.setAttribute('playsinline', 'true');
+          videoRef.current.setAttribute('autoplay', 'true');
+          videoRef.current.setAttribute('muted', 'true');
+          
+          // Wait for video to be ready before starting scan
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current?.play().catch((err) => {
+              console.error('Play error:', err);
+              setError('Failed to start video playback');
+            });
+            if (animationFrameIdRef.current === null) {
+              animationFrameIdRef.current = requestAnimationFrame(tick);
+            }
+          };
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Camera access error:', error);
-        setError('Could not access camera. Please check permissions.');
+        
+        // Provide specific error messages
+        if (error.name === 'NotAllowedError') {
+          setError('Camera permission denied. Please allow camera access in settings.');
+        } else if (error.name === 'NotFoundError') {
+          setError('No camera found on this device.');
+        } else if (error.name === 'NotReadableError') {
+          setError('Camera is already in use by another application.');
+        } else if (error.name === 'SecurityError') {
+          setError('Camera access requires HTTPS connection.');
+        } else {
+          setError('Could not access camera. Please check permissions.');
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     const tick = () => {
-      if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
-        const canvas = canvasRef.current;
-        const context = canvas?.getContext('2d');
+      if (
+        videoRef.current &&
+        canvasRef.current &&
+        videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA &&
+        !scannedRef.current
+      ) {
+        const context = canvasRef.current.getContext('2d', { willReadFrequently: true });
 
-        if (canvas && context) {
-          canvas.height = videoRef.current.videoHeight;
-          canvas.width = videoRef.current.videoWidth;
-          context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height, {
-            inversionAttempts: 'dontInvert',
-          });
+        if (context) {
+          // Set canvas dimensions to match video
+          canvasRef.current.width = videoRef.current.videoWidth;
+          canvasRef.current.height = videoRef.current.videoHeight;
 
-          if (code && code.data) {
-            onScan(code.data);
-            setIsScanning(false);
-            return; // Stop the loop
+          // Draw video frame to canvas
+          context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
+
+          try {
+            const imageData = context.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+            
+            // Try with inversion attempts enabled for better detection
+            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+              inversionAttempts: 'attemptBoth',
+            });
+
+            if (code && code.data) {
+              scannedRef.current = true;
+              onScan(code.data);
+              setIsScanning(false);
+              return;
+            }
+          } catch (err) {
+            console.error('QR scanning error:', err);
           }
-        } 
-      } 
-      animationFrameId = requestAnimationFrame(tick); 
+        }
+      }
+
+      if (isScanning && !scannedRef.current) {
+        animationFrameIdRef.current = requestAnimationFrame(tick);
+      }
     };
 
     if (isScanning) {
@@ -70,11 +127,16 @@ export function QRScanner({ onScan }: QRScannerProps) {
     }
 
     return () => {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach((track) => track.stop());
+      // Cleanup: stop all tracks and cancel animation frame
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((track) => {
+          track.stop();
+        });
+        mediaStreamRef.current = null;
       }
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
+      if (animationFrameIdRef.current !== null) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+        animationFrameIdRef.current = null;
       }
     };
   }, [isScanning, onScan]);
@@ -106,7 +168,11 @@ export function QRScanner({ onScan }: QRScannerProps) {
       )}
       {isScanning && !error && (
         <div className="relative w-full max-w-md mx-auto">
-          <video ref={videoRef} className="w-full h-auto rounded-xl border-4 border-gray-300" />
+          <video
+            ref={videoRef}
+            className="w-full h-auto rounded-xl border-4 border-gray-300"
+            style={{ aspectRatio: '4/3' }}
+          />
           <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none">
             <div className="w-60 h-60 border-4 border-hostel-gold rounded-lg opacity-75 animate-pulse" />
           </div>
