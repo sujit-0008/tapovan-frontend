@@ -10,6 +10,7 @@ import{EditStudentRequest} from '../../../../types/editStudent';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import StudentRoomAssignmentModal from '../../../../components/StudentRoomAssignmentModal';
 
 export default function StudentDetails() {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +19,7 @@ export default function StudentDetails() {
   const { mutate: approveStudent, isPending: isApproving } = useApproveStudent();
   const [rejectionReason, setRejectionReason] = useState('');
   const [showRejectionInput, setShowRejectionInput] = useState(false);
+  const [isRoomAssignmentModalOpen, setIsRoomAssignmentModalOpen] = useState(false);
   const handleApprove = () => {
     approveStudent({ id, data: { status: 'APPROVED' } })
   };
@@ -882,7 +884,15 @@ export default function StudentDetails() {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Academic Information</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle>Academic Information</CardTitle>
+                <button
+                  onClick={() => setIsRoomAssignmentModalOpen(true)}
+                  className="px-4 py-2 rounded-xl bg-hostel-gold hover:bg-hostel-gold/90 text-white font-medium transition text-sm"
+                >
+                  Assign Room
+                </button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -900,7 +910,7 @@ export default function StudentDetails() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Room Number</p>
-                  <p className="text-sm text-gray-500">{student.roomNumber}</p>
+                  <p className="text-sm text-gray-500">{student.roomNumber || 'Not Assigned'}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Languages Known</p>
@@ -1202,6 +1212,14 @@ export default function StudentDetails() {
           Back to Students
         </Link>
       </div>
+
+      {/* Room Assignment Modal */}
+      <StudentRoomAssignmentModal
+        isOpen={isRoomAssignmentModalOpen}
+        onClose={() => setIsRoomAssignmentModalOpen(false)}
+        studentId={id}
+        studentName={`${student.firstName} ${student.lastName}`}
+      />
     </div>
   );
 }

@@ -60,4 +60,18 @@ export const API_ROUTES = {
     UPDATE: '/api/admin//payments/:id',
     HISTORY: '/api/admin/payments/student/:studentId',
   },
+  ROOM: {
+    CREATE: '/api/admin/rooms',
+    ALL: '/api/admin/rooms',
+    GET_BY_ID: '/api/admin/rooms/:roomId',
+    UPDATE: '/api/admin/rooms/:roomId',
+    DELETE: '/api/admin/rooms/:roomId',
+    AVAILABLE: '/api/admin/rooms/available',
+    OCCUPANCY_REPORT: '/api/admin/rooms/report/occupancy',
+    ASSIGN_STUDENT: '/api/admin/room-assignments',
+    UPDATE_ASSIGNMENT: '/api/admin/room-assignments/:assignmentId',
+    VACATE_STUDENT: '/api/admin/room-assignments/:assignmentId/vacate',
+    GET_STUDENT_ASSIGNMENT: '/api/admin/students/:studentId/room-assignment',
+    GET_STUDENT_HISTORY: '/api/admin/students/:studentId/room-assignment-history',
+  },
 } as const;
