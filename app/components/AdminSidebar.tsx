@@ -26,6 +26,7 @@ export const AdminSidebar = () => {
   { path: "/admin-dashboard/allStudent", label: "All Student", icon: Heart },
   { path: "/admin-dashboard/allVendor", label: "All Vendor", icon: Truck },
   { path: "/admin-dashboard/roomManagement", label: "Room Management", icon: Star },
+  { path: "/admin-dashboard/tickets", label: "Tickets", icon: Star },
 ];
 
   return (

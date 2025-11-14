@@ -74,4 +74,16 @@ export const API_ROUTES = {
     GET_STUDENT_ASSIGNMENT: '/api/admin/students/:studentId/room-assignment',
     GET_STUDENT_HISTORY: '/api/admin/students/:studentId/room-assignment-history',
   },
+
+   TICKETS: {
+    GET: '/api/admin/tickets',
+    UPDATE: '/api/admin/tickets/:id',
+    ASSIGN_BY_SKILLS: '/api/admin/:ticketId/assign-by-skills',
+  },
+  STAFF_BY_SKILLS: {
+    BY_SKILLS: '/api/admin/staff/by-skills',
+  },
+  SKILLS: {
+    FOR_CATEGORY: '/api/admin/skills/mapping',
+  },
 } as const;

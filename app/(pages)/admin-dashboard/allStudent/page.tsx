@@ -71,7 +71,7 @@ export default function AllStudents() {
               {data?.students.map((student) => (
                 <Card
                   key={student.id}
-                  className="shadow-md hover:shadow-lg transition rounded-2xl"
+                  className="shadow-md hover:shadow-lg transition  rounded-2xl"
                 >
                   <CardContent className="p-4 sm:p-6 space-y-4 text-center">
                     <div className="w-16 h-16 mx-auto rounded-full overflow-hidden ring-2 ring-hostel-gold flex items-center justify-center bg-hostel-gold/10">

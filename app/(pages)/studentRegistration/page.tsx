@@ -122,6 +122,8 @@ export default function StudentRegistration() {
       'emergencyContactName',
       'emergencyContactNumber',
       'emergencyContactRelation',
+      'password',
+      
       // 'parent1Name',
       // 'parent1Address',
       // 'parent1Mobile',
@@ -452,7 +454,7 @@ export default function StudentRegistration() {
                   </div>
                   <div className="space-y-1">
                     <label htmlFor="password" className="text-sm font-medium">
-                      Password
+                      Password *
                     </label>
                     <input
                       id="password"
@@ -467,7 +469,21 @@ export default function StudentRegistration() {
                   </div>
                   <div className="space-y-1">
                     <label className="text-sm font-medium">Languages Known</label>
-                    <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2">
+                    <input
+                      type="text"
+                      name="languagesKnown"
+                      className={inputClass}
+                      placeholder="Enter languages, separated by commas"
+                      value={formData.languagesKnown.join(', ')}
+                      onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        languagesKnown: e.target.value.split(',').map((lang) => lang.trim()),
+                      }))
+                      }
+                      disabled={isPending}
+                    />
+                    {/* <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2">
                       {['english', 'hindi', 'marathi', 'tamil', 'telugu'].map((lang) => (
                         <label key={lang} className="flex items-center space-x-2">
                           <input
@@ -481,7 +497,7 @@ export default function StudentRegistration() {
                           <span className="text-sm capitalize">{lang}</span>
                         </label>
                       ))}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </CardContent>

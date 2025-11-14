@@ -90,6 +90,7 @@ export interface CreateTicketRequest {
   description: string;
   severity?: string;
   roomNumber?: string;
+  photo?: File | null;
 }
 
 export interface CreateTicketResponse {
