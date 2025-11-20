@@ -37,7 +37,10 @@ export interface FoodMenu {
 
 // Interface for the entire API response from the getFoodMenus endpoint
 export interface GetFoodMenusResponse {
+   weekStart: string,
+    weekEnd:string,
   menus: FoodMenu[];
+  totalMenus: number;
 }
 
 

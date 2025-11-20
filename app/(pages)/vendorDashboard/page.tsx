@@ -1,11 +1,8 @@
-
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-//import { input } from '@/components/ui/input';
-//import { Select } from '@/components/ui/select';
 import { Accordion } from '../../components/ui/accordion';
 import { QRCodeCanvas } from 'qrcode.react';
 import { AlertCircle, CheckCircle } from 'lucide-react';
@@ -21,16 +18,19 @@ export default function VendorDashboard() {
   const router = useRouter();
   const { user } = useAuthStore();
   const vendorId = user?.id?.toString() || '';
-  //const vendorRole= user?.role||''
+  
+  // State declarations FIRST
+  const [qrForm, setQrForm] = useState({ mealType: '', date: '', time: '' });
+  const [menuForm, setMenuForm] = useState({ mealType: '', date: '', items: '', notes: '' });
+  const [editMenuId, setEditMenuId] = useState<string | null>(null);
+  
+  // Then hook calls
   const { data: vendorData, isLoading: isVendorLoading } = useVendorDetails(vendorId);
   const { mutate: generateQR, data: qrData, isPending: isGeneratingQR } = useGenerateMealQR();
   const { mutate: createMenu, isPending: isCreatingMenu } = useCreateFoodMenu();
   const { data: skipsData, isLoading: isSkipsLoading } = useMealSkips();
   const { data: menusData, isLoading: isMenusLoading } = useFoodMenus();
-
-  const [qrForm, setQrForm] = useState({ mealType: '', date: '', time: '' });
-  const [menuForm, setMenuForm] = useState({ mealType: '', date: '', items: '', notes: '' });
-  const [editMenuId, setEditMenuId] = useState<string | null>(null);
+  const updateMenu = useUpdateFoodMenu(editMenuId || '');
 
   if (isVendorLoading) return <p className="p-4 sm:p-6 text-gray-500 text-sm">Loading...</p>;
   if (vendorData?.vendor.category !== 'food-vendor') {
@@ -41,7 +41,6 @@ export default function VendorDashboard() {
   const handleQrSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form
     if (!qrForm.mealType || !qrForm.date || !qrForm.time) {
       alert('Please fill in all fields');
       return;
@@ -63,8 +62,8 @@ export default function VendorDashboard() {
       items,
       notes: menuForm.notes || undefined,
     };
+    
     if (editMenuId) {
-      const updateMenu = useUpdateFoodMenu(editMenuId);
       updateMenu.mutate(data, {
         onSuccess: () => {
           setEditMenuId(null);
@@ -86,8 +85,11 @@ export default function VendorDashboard() {
       items: menu.items.join(', '),
       notes: menu.notes || '',
     });
+    // Scroll to Create/Edit Menu section
+    document.getElementById('menu-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // ...rest of the component remains the same...
   const today = new Date().toISOString().split('T')[0];
 
   return (
@@ -110,21 +112,7 @@ export default function VendorDashboard() {
         </div>
       </div>
 
-      {/* Stats (Placeholder) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-        {[
-          { title: 'Total Meals Sold', value: '150' },
-          { title: 'Meals Scanned', value: '120' },
-          { title: 'Meals Not Scanned', value: '30' },
-        ].map((stat, index) => (
-          <Card key={index} className="bg-muted/30">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <h3 className="text-sm text-muted-foreground mb-2">{stat.title}</h3>
-              <p className="text-2xl sm:text-4xl font-bold">{stat.value}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+  
 
       {/* Generate QR Code */}
       <Card>
@@ -187,7 +175,6 @@ export default function VendorDashboard() {
                   size={256}
                   level="H"
                   includeMargin={true}
-                  renderAs="canvas"
                 />
               </div>
               <p className="text-xs text-gray-400 mt-2">Date: {qrForm.date} | Time: {qrForm.time}</p>
@@ -204,12 +191,14 @@ export default function VendorDashboard() {
       </Card>
 
       {/* Create/Edit Menu */}
-      <Card>
+      <Card id='menu-form' >
         <CardHeader>
           <CardTitle>{editMenuId ? 'Edit Menu' : 'Create Menu'}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleMenuSubmit} className="space-y-4 sm:space-y-6">
+
+
+          <form onSubmit={handleMenuSubmit} className="space-y-4 sm:space-y-6" >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Date *</label>
@@ -281,34 +270,127 @@ export default function VendorDashboard() {
         </CardContent>
       </Card>
 
-      {/* Today's Menu */}
+      {/* Weekly Menu */}
       <Card>
         <CardHeader>
-          <CardTitle>Today's Menu</CardTitle>
+          <CardTitle>Weekly Menu</CardTitle>
+          {menusData && (
+            <p className="text-sm text-gray-500 mt-2">
+              Week of {new Date(menusData.weekStart).toLocaleDateString()} - {new Date(menusData.weekEnd).toLocaleDateString()}
+            </p>
+          )}
         </CardHeader>
         <CardContent>
           {isMenusLoading ? (
             <p className="text-sm text-gray-500">Loading menus...</p>
-          ) : !menusData?.menus.length ? (
-            <p className="text-sm text-gray-500">No menu for today</p>
+          ) : !menusData?.menus || Object.keys(menusData.menus).length === 0 ? (
+            <p className="text-sm text-gray-500">No menu for this week</p>
           ) : (
-            <div className="space-y-4">
-              {menusData.menus.map((menu) => (
-                <Card key={menu.id} className="bg-muted/20">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg sm:text-xl mb-2">{menu.mealType}</h3>
-                        <p className="text-sm text-gray-500">{menu.items.join(', ')}</p>
-                        {menu.notes && <p className="text-sm text-gray-500 mt-2">Notes: {menu.notes}</p>}
-                      </div>
-                      <button onClick={() => handleEditMenu(menu)} className="text-sm text-hostel-gold hover:text-hostel-gold/80 font-medium">
-                        Edit
-                      </button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">Date</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">Breakfast</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">Lunch</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">Snack</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">Dinner</th>
+                  {/* <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">Action</th> */}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(menusData.menus).map(([date, meals]: [string, any]) => (
+                    <tr key={date} className="hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700">
+                        {new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-gray-600">
+                        {meals.BREAKFAST ? (
+                          <div className="space-y-1">
+                            <p>{meals.BREAKFAST[0]?.items.join(', ')}</p>
+                            {meals.BREAKFAST[0]?.notes && (
+                              <p className="text-xs text-gray-400 italic">Note: {meals.BREAKFAST[0].notes}</p>
+                            )}
+                            <button
+                              onClick={() => handleEditMenu(meals.BREAKFAST[0])}
+                           className="px-3 py-1 bg-hostel-gold cursor-pointer text-white  rounded hover:bg-blue-200 text-xs font-medium transition"
+                            >
+                              Edit
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-gray-600">
+                        {meals.LUNCH ? (
+                          <div className="space-y-1">
+                            <p>{meals.LUNCH[0]?.items.join(', ')}</p>
+                            {meals.LUNCH[0]?.notes && (
+                              <p className="text-xs text-gray-400 italic">Note: {meals.LUNCH[0].notes}</p>
+                            )}
+                            <button
+                              onClick={() => handleEditMenu(meals.LUNCH[0])}
+                             className="px-3 py-1 bg-hostel-gold cursor-pointer text-white  rounded hover:bg-blue-200 text-xs font-medium transition"
+                            >
+                              Edit
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-gray-600">
+                        {meals.SNACK ? (
+                          <div className="space-y-1">
+                            <p>{meals.SNACK[0]?.items.join(', ')}</p>
+                            {meals.SNACK[0]?.notes && (
+                              <p className="text-xs text-gray-400 italic">Note: {meals.SNACK[0].notes}</p>
+                            )}
+                            <button
+                              onClick={() => handleEditMenu(meals.SNACK[0])}
+                            className="px-3 py-1 bg-hostel-gold cursor-pointer text-white  rounded hover:bg-blue-200 text-xs font-medium transition"
+                            >
+                              Edit
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-gray-600">
+                        {meals.DINNER ? (
+                          <div className="space-y-1">
+                            <p>{meals.DINNER[0]?.items.join(', ')}</p>
+                            {meals.DINNER[0]?.notes && (
+                              <p className="text-xs text-gray-400 italic">Note: {meals.DINNER[0].notes}</p>
+                            )}
+                            <button
+                              onClick={() => handleEditMenu(meals.DINNER[0])}
+                       className="px-3 py-1 bg-hostel-gold cursor-pointer text-white  rounded hover:bg-blue-200 text-xs font-medium transition"
+                            >
+                              Edit
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      {/* <td className="border border-gray-300 px-4 py-3 text-sm">
+                        <button
+                          onClick={() => {
+                            // You can add a delete function or navigate to date
+                            console.log('View details for', date);
+                          }}
+                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs font-medium transition"
+                        >
+                          Details
+                        </button>
+                      </td> */}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </CardContent>
@@ -352,6 +434,22 @@ export default function VendorDashboard() {
           )}
         </CardContent>
       </Card>
+
+          {/* Stats (Placeholder) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+        {[
+          { title: 'Total Meals Sold', value: '150' },
+          { title: 'Meals Scanned', value: '120' },
+          { title: 'Meals Not Scanned', value: '30' },
+        ].map((stat, index) => (
+          <Card key={index} className="bg-muted/30">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <h3 className="text-sm text-muted-foreground mb-2">{stat.title}</h3>
+              <p className="text-2xl sm:text-4xl font-bold">{stat.value}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

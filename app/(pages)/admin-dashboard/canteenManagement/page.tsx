@@ -1,4 +1,6 @@
+'use client'
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
+import { useFoodMenus } from '../../../hooks/useFoodMenus';
 
 const mealData = {
   totalStudents: 150,
@@ -11,6 +13,7 @@ const mealData = {
 };
 
 export default function CanteenManagement() {
+   const { data: menusData, isLoading: isMenusLoading } = useFoodMenus();
   return (
     <div className="p-6 space-y-6">
       <div>
@@ -44,42 +47,108 @@ export default function CanteenManagement() {
         </div>
       </div>
       
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Today's Meal</CardTitle>
-          <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition">
-            Edit Meal
-          </button>
+     <Card>
+        <CardHeader>
+          <CardTitle>Weekly Menu</CardTitle>
+          {menusData && (
+            <p className="text-sm text-gray-500 mt-2">
+              Week of {new Date(menusData.weekStart).toLocaleDateString()} - {new Date(menusData.weekEnd).toLocaleDateString()}
+            </p>
+          )}
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div className="border rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="inline-block bg-gray-200 text-gray-800 text-sm px-2 py-1 rounded-md">
-                  Breakfast
-                </span>
-              </div>
-              <p className="text-gray-600">{mealData.todayMeals.breakfast}</p>
+        <CardContent>
+          {isMenusLoading ? (
+            <p className="text-sm text-gray-500">Loading menus...</p>
+          ) : !menusData?.menus || Object.keys(menusData.menus).length === 0 ? (
+            <p className="text-sm text-gray-500">No menu for this week</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">Date</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">Breakfast</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">Lunch</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">Snack</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">Dinner</th>
+                  {/* <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700">Action</th> */}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(menusData.menus).map(([date, meals]: [string, any]) => (
+                    <tr key={date} className="hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700">
+                        {new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-gray-600">
+                        {meals.BREAKFAST ? (
+                          <div className="space-y-1">
+                            <p>{meals.BREAKFAST[0]?.items.join(', ')}</p>
+                            {meals.BREAKFAST[0]?.notes && (
+                              <p className="text-xs text-gray-400 italic">Note: {meals.BREAKFAST[0].notes}</p>
+                            )}
+                           
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-gray-600">
+                        {meals.LUNCH ? (
+                          <div className="space-y-1">
+                            <p>{meals.LUNCH[0]?.items.join(', ')}</p>
+                            {meals.LUNCH[0]?.notes && (
+                              <p className="text-xs text-gray-400 italic">Note: {meals.LUNCH[0].notes}</p>
+                            )}
+                       
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-gray-600">
+                        {meals.SNACK ? (
+                          <div className="space-y-1">
+                            <p>{meals.SNACK[0]?.items.join(', ')}</p>
+                            {meals.SNACK[0]?.notes && (
+                              <p className="text-xs text-gray-400 italic">Note: {meals.SNACK[0].notes}</p>
+                            )}
+                          
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-gray-600">
+                        {meals.DINNER ? (
+                          <div className="space-y-1">
+                            <p>{meals.DINNER[0]?.items.join(', ')}</p>
+                            {meals.DINNER[0]?.notes && (
+                              <p className="text-xs text-gray-400 italic">Note: {meals.DINNER[0].notes}</p>
+                            )}
+                          
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      {/* <td className="border border-gray-300 px-4 py-3 text-sm">
+                        <button
+                          onClick={() => {
+                            // You can add a delete function or navigate to date
+                            console.log('View details for', date);
+                          }}
+                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs font-medium transition"
+                        >
+                          Details
+                        </button>
+                      </td> */}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            
-            <div className="border rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="inline-block bg-gray-200 text-gray-800 text-sm px-2 py-1 rounded-md">
-                  Lunch
-                </span>
-              </div>
-              <p className="text-gray-600">{mealData.todayMeals.lunch}</p>
-            </div>
-            
-            <div className="border rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="inline-block bg-gray-200 text-gray-800 text-sm px-2 py-1 rounded-md">
-                  Dinner
-                </span>
-              </div>
-              <p className="text-gray-600">{mealData.todayMeals.dinner}</p>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>
