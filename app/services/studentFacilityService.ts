@@ -1,4 +1,3 @@
-
 import api from './api';
 import { API_ROUTES } from '../constants/api';
 import { MealCheckinRequest, MealCheckinResponse, SkipMealRequest, SkipMealResponse, CreateBookingRequest, CreateBookingResponse, CreateSOSAlertRequest, CreateSOSAlertResponse, CreateTicketRequest, CreateTicketResponse, GetFacilitiesResponse, GetBookingsResponse 
@@ -29,17 +28,23 @@ export const createTicket = async (
   data: CreateTicketRequest,
   file?: File
 ): Promise<CreateTicketResponse> => {
-  const formData = new FormData();
-  Object.entries(data).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      formData.append(key, value.toString());
-    }
-  });
-  if (file) formData.append('photo', file);
-  const response = await api.post<CreateTicketResponse>(API_ROUTES.STUDENT.CREATE_TICKET, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return response.data;
+  // If a file is provided send multipart/form-data, otherwise send JSON
+  if (file) {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value.toString());
+      }
+    });
+    formData.append('photo', file);
+    const response = await api.post<CreateTicketResponse>(API_ROUTES.STUDENT.CREATE_TICKET, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  } else {
+    const response = await api.post<CreateTicketResponse>(API_ROUTES.STUDENT.CREATE_TICKET, data);
+    return response.data;
+  }
 };
 
 export const getFacilities = async (): Promise<GetFacilitiesResponse> => {

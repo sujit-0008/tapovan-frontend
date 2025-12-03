@@ -3,13 +3,15 @@ export type TicketStatus = 'PENDING' | 'IN_PROGRESS' | 'CLOSED';
 
 export interface Ticket {
   id: number;
-  title: string;
-  description: string;
   category: string;
-  status: TicketStatus;
-  createdAt: string;
+  description: string;
+  severity?: string | null;
+  photoUrl?: string | null;
+  roomNumber?: string | null;
+  status: 'PENDING' | 'IN_PROGRESS' | 'CLOSED';
   assignedToAdminId?: number | null;
   assignedToVendorId?: number | null;
+  createdAt: string;
   raisedBy: {
     firstName: string;
     lastName: string;
@@ -19,10 +21,11 @@ export interface Ticket {
     name: string;
     email: string;
     phone: string;
-  } | null;
+    skills: string[];
+  };
 }
 
-export interface GetTicketsResponse {
+export interface TicketsResponse {
   tickets: Ticket[];
   total: number;
   page: number;
@@ -37,21 +40,9 @@ export interface StaffMember {
   skills: string[];
   activeTickets: number;
 }
-// export interface CreateTicketRequest {
-//   category: string;
-//   description: string;
-//   severity?: string;
-//   roomNumber?: string;
-//   file?: File; // Added file property
-// }
-export interface CreateTicketResponse {
-  ticketId: number;
-  message: string;
-}
-export interface UpdateTicketRequest {
-  status: TicketStatus;
-  assignedToAdminId?: number | null;
-  assignedToVendorId?: number | null;
+
+export interface StaffBySkillsResponse {
+  staff: StaffMember[];
 }
 
 export interface SkillMapping {

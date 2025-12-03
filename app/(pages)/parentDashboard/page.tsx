@@ -17,8 +17,8 @@ export default function ParentDashboard() {
   if (error) return <p className="p-4 sm:p-6 text-red-500 text-sm">Error: {error.message || 'Failed to load dashboard'}</p>;
   if (!data) return <p className="p-4 sm:p-6 text-gray-500 text-sm">No data available.</p>;
 
-  const { studentInfo, attendance, mealAttendance, checkupReports } = data;
-
+  const { parentInfo,studentInfo, attendance, mealAttendance, checkupReports } = data;
+console.log("Parent Info:",parentInfo);
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 space-y-8">
       {/* <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -34,6 +34,25 @@ export default function ParentDashboard() {
       </div> */}
 
       {/* Notification Section */}
+
+         <Card>
+        <CardHeader>
+          <CardTitle>Parent Names</CardTitle>
+        </CardHeader>
+        <CardContent>
+        {/* <p className="text-lg font-semibold ">
+          ID:  {studentInfo.id}
+        </p> */}
+        <p className="text-lg font-semibold ">
+          Name 1: {parentInfo.parent1Name}
+        </p>
+        <p className="text-lg font-semibold ">
+          Name 2: {parentInfo.parent2Name}
+        </p>
+      
+
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Student Information</CardTitle>
@@ -46,10 +65,9 @@ export default function ParentDashboard() {
           Name: {studentInfo.firstName} {studentInfo.lastName}
         </p>
         <p className="text-lg font-semibold ">
-          Roll Number: {studentInfo.rollNumber}
+          Room Number: {studentInfo.roomNumber}
         </p>
-        <p className="text-lg font-semibold ">
-          Mobile Number: {studentInfo.mobileNumber}</p>
+     
         
 
         </CardContent>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -30,7 +29,7 @@ export default function StudentDashboard() {
 
   const [mealSkip, setMealSkip] = useState({ mealType: '', date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0] });
   const [bookingForm, setBookingForm] = useState({ facilityId: '', slotStart: '', slotEnd: '' });
-  const [ticketForm, setTicketForm] = useState({ category: '', description: '', severity: '', roomNumber: '', photo: null as File | null });
+  const [ticketForm, setTicketForm] = useState({ category: '', description: '', severity: '', roomNumber: '' });
 
   const handleMealCheckin = (qrData: string) => {
     checkinMeal({ data: qrData }, {
@@ -41,7 +40,7 @@ export default function StudentDashboard() {
 
   const handleSkipMeal = (e: React.FormEvent) => {
     e.preventDefault();
-    skipMeal(mealSkip, {
+    skipMeal({ ...mealSkip, mealType: mealSkip.mealType as 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK' | 'ALL' }, {
       onSuccess: () => {
         alert('Meal skip recorded');
         setMealSkip({ ...mealSkip, mealType: '' });
@@ -90,11 +89,11 @@ export default function StudentDashboard() {
   const handleTicketSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createTicket(
-      { data: ticketForm, file: ticketForm.photo || undefined },
+      { category: ticketForm.category, description: ticketForm.description, severity: ticketForm.severity, roomNumber: ticketForm.roomNumber },
       {
         onSuccess: () => {
           alert('Ticket created successfully');
-          setTicketForm({ category: '', description: '', severity: '', roomNumber: '', photo: null });
+          setTicketForm({ category: '', description: '', severity: '', roomNumber: ''});
         },
         onError: (error) => alert(error.message || 'Failed to create ticket'),
       }
@@ -278,23 +277,6 @@ export default function StudentDashboard() {
                 <Input
                   value={ticketForm.roomNumber}
                   onChange={(e) => setTicketForm({ ...ticketForm, roomNumber: e.target.value })}
-                  className="rounded-xl"
-                  disabled={isCreatingTicket}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Photo (max 200KB)</label>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file && file.size > 200 * 1024) {
-                      alert('File size must be less than 200KB');
-                      return;
-                    }
-                    setTicketForm({ ...ticketForm, photo: file || null });
-                  }}
                   className="rounded-xl"
                   disabled={isCreatingTicket}
                 />

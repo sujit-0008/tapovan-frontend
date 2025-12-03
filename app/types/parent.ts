@@ -30,15 +30,20 @@ export interface studentInformation {
   id: string,
   firstName: string,
   lastName: string,
-  rollNumber: string,
-  email: string,
-  mobileNumber: string
+  roomNumber: string,
+  // rollNumber: string,
+  // email: string,
+  // mobileNumber: string
+}
+
+export interface parentInformation {
+  parent1Name: string,
+  parent2Name: string,
 }
 
 
-
-
 export interface ParentAttendanceResponse {
+  parentInfo: parentInformation
   studentInfo: studentInformation
   attendance: StudentAttendance[];
   mealAttendance: MealAttendance[];

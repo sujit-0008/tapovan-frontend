@@ -1,49 +1,49 @@
-
 import api from './api';
 import { API_ROUTES } from '../constants/api';
 import {
-  GetTicketsResponse,
-  UpdateTicketRequest,
-  StaffMember,
+  TicketsResponse,
+  StaffBySkillsResponse,
   SkillMapping,
 } from '../types/ticket';
 
 export const getTickets = async (
   status: string = 'PENDING',
   page: number = 1
-): Promise<GetTicketsResponse> => {
-  const response = await api.get<GetTicketsResponse>(API_ROUTES.TICKETS.GET, {
+): Promise<TicketsResponse> => {
+  const response = await api.get<TicketsResponse>(API_ROUTES.TICKET.ALL, {
     params: { status, page },
   });
   return response.data;
 };
 
-export const updateTicket = async (
+export const updateTicketStatus = async (
   id: string,
-  data: UpdateTicketRequest
+  status: 'PENDING' | 'IN_PROGRESS' | 'CLOSED',
+  assignedToAdminId?: number,
+  assignedToVendorId?: number
 ) => {
-  const response = await api.put(
-    API_ROUTES.TICKETS.UPDATE.replace(':id', id),
-    data
-  );
-  return response.data;
-};
-
-export const assignTicketBySkills = async (ticketId: string) => {
   const response = await api.post(
-    API_ROUTES.TICKETS.ASSIGN_BY_SKILLS.replace(':id', ticketId)
+    API_ROUTES.TICKET.UPDATE.replace(':id', id),
+    { status, assignedToAdminId, assignedToVendorId }
   );
   return response.data;
 };
 
-export const getStaffBySkills = async (skills?: string): Promise<{ staff: StaffMember[] }> => {
-  const response = await api.get(API_ROUTES. STAFF_BY_SKILLS.BY_SKILLS, {
+export const assignTicketBySkills = async (ticketId: string): Promise<any> => {
+  const response = await api.post(
+    API_ROUTES.TICKET.ASSIGN_BY_SKILLS.replace(':id', ticketId), {}
+  );
+  return response.data;
+};
+
+export const getStaffBySkills = async (skills: string): Promise<StaffBySkillsResponse> => {
+  const response = await api.get<StaffBySkillsResponse>(API_ROUTES.TICKET.STAFF_BY_SKILLS, {
     params: { skills },
   });
   return response.data;
 };
 
 export const getSkillsForCategory = async (): Promise<{ skillMapping: SkillMapping }> => {
-  const response = await api.get(API_ROUTES.SKILLS.FOR_CATEGORY);
+  const response = await api.get(API_ROUTES.TICKET.SKILLS_FOR_CATEGORY);
   return response.data;
 };

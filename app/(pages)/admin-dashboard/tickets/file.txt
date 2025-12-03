@@ -6,8 +6,7 @@ import { Input } from '../../../components/ui/input';
 import { Select } from '../../..//components/ui/select';
 import { Button } from '../../..//components/ui/button';
 import { useTickets, useUpdateTicketStatus, useStaffBySkills, useSkillsForCategory } from '../../../hooks/useTickets';
-import { ChevronDown, Wrench } from 'lucide-react';
-import { TicketStatus } from '../../../types/ticket';
+
 import { Search, UserCheck, Clock, CheckCircle } from 'lucide-react';
 
 export default function TicketManagement() {
@@ -18,19 +17,14 @@ export default function TicketManagement() {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [searchSkills, setSearchSkills] = useState('');
   const [selectedStaffId, setSelectedStaffId] = useState('');
-  //const [openUpdateStatusDropdown, setOpenUpdateStatusDropdown] = useState(false);
-  const [openStatusDropdown, setOpenStatusDropdown] = useState(false);
+
   const { data, isLoading } = useTickets(statusFilter, page);
   const { data: skillsData } = useSkillsForCategory();
   const { data: staffData } = useStaffBySkills(searchSkills);
   const statusMutation = useUpdateTicketStatus();
 
   const skillMapping = skillsData?.skillMapping || {};
- const stats = {
-    PENDING: data?.tickets.filter(t => t.status === 'PENDING').length || 0,
-    IN_PROGRESS: data?.tickets.filter(t => t.status === 'IN_PROGRESS').length || 0,
-    CLOSED: data?.tickets.filter(t => t.status === 'CLOSED').length || 0,
-  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'PENDING': return 'bg-yellow-100 text-yellow-800';
@@ -40,14 +34,14 @@ export default function TicketManagement() {
     }
   };
 
-  const handleAssign = (ticket: any):void => {
+  const handleAssign = (ticket: any) => {
     setSelectedTicket(ticket);
     const suggested = skillMapping[ticket.category] || [];
     setSearchSkills(suggested.join(','));
     setShowAssignModal(true);
   };
 
-  const handleStatusChange = (ticket: any):void => {
+  const handleStatusChange = (ticket: any) => {
     setSelectedTicket(ticket);
     setShowStatusModal(true);
   };
@@ -86,9 +80,15 @@ export default function TicketManagement() {
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
-   
-    
-      {/* Stats Cards */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Ticket Management</h1>
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v as any); setPage(1); }}>
+          <option value="PENDING">Pending</option>
+          <option value="IN_PROGRESS">In Progress</option>
+          <option value="CLOSED">Closed</option>
+        </Select>
+      </div>
+          {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
@@ -139,7 +139,7 @@ export default function TicketManagement() {
               </button>
               {openStatusDropdown && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10">
-                  {['PENDING', 'IN_PROGRESS', 'CLOSED'].map((status) => (
+                  {["PENDING", "IN_PROGRESS", "CLOSED"].map((status) => (
                     <button
                       key={status}
                       onClick={() => {
@@ -149,13 +149,110 @@ export default function TicketManagement() {
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      {status.replace('_', ' ')}
+                      {status.replace("_", " ")}
                     </button>
                   ))}
                 </div>
               )}
             </div>
           </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <p className="text-center py-8 text-gray-500">Loading tickets...</p>
+          ) : (
+            <div className="space-y-4">
+              {data?.tickets.map((ticket) => (
+                <div
+                  key={ticket.id}
+                  className="border rounded-lg p-4 hover:shadow-md transition"
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg">
+                        #{ticket.id} - {ticket.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {ticket.description}
+                      </p>
+                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                        <span>
+                          Raised by: {ticket.raisedBy.firstName}{" "}
+                          {ticket.raisedBy.lastName}
+                        </span>
+                        <span>
+                          {new Date(ticket.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          ticket.status
+                        )}`}
+                      >
+                        {ticket.status.replace("_", " ")}
+                      </span>
+                      {ticket.assignedToAdmin && (
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          {ticket.assignedToAdmin.name}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    {ticket.status === "PENDING" && (
+                      <Button onClick={() => handleAssignBySkills(ticket)}>
+                        Auto Assign
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      onClick={() => openUpdateModal(ticket)}
+                    >
+                      Update
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {data && data.pages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <span className="text-sm">
+                Page {data.page} of {data.pages}
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => setPage((p) => Math.min(data.pages, p + 1))}
+                disabled={page === data.pages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Support Tickets</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -187,30 +284,29 @@ export default function TicketManagement() {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-sm">
-                        Staff id: {ticket.assignedToAdminId ? ticket.assignedToAdminId : 'Unassigned'}
+                        {ticket.assignedToAdmin ? ticket.assignedToAdmin.name : 'Unassigned'}
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex gap-2">
                           {ticket.status === 'PENDING' && (
-                            <Button  onClick={() => handleAssign(ticket)}>
+                            <Button size="sm" onClick={() => handleAssign(ticket)}>
                               <UserCheck className="h-4 w-4 mr-1" />
                               Assign
                             </Button>
                           )}
                           {(ticket.status === 'PENDING' || ticket.status === 'IN_PROGRESS') && (
-                            <Button  variant="outline" onClick={() => handleStatusChange(ticket)}>
+                            <Button size="sm" variant="outline" onClick={() => handleStatusChange(ticket)}>
                               <Clock className="h-4 w-4 mr-1" />
                               Update
                             </Button>
                           )}
                           {ticket.status === 'IN_PROGRESS' && (
-                            <Button  className="bg-green-500 text-white hover:bg-green-600"
+                            <Button size="sm" className="bg-green-500 text-white hover:bg-green-600"
                               onClick={() => handleCloseTicket(ticket)}>
                               <CheckCircle className="h-4 w-4 mr-1" />
                               Close
                             </Button>
                           )}
-                          
                         </div>
                       </td>
                     </tr>
@@ -323,14 +419,11 @@ export default function TicketManagement() {
                     Mark as In Progress
                   </Button>
                 )}
-              
                 {selectedTicket.status === 'IN_PROGRESS' && (
                   <Button className="bg-green-600 hover:bg-green-700" onClick={() => confirmStatus('CLOSED')}>
                     Mark as Closed
                   </Button>
                 )}
-
-                
                 <Button variant="outline" onClick={() => setShowStatusModal(false)}>
                   Cancel
                 </Button>

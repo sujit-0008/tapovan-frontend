@@ -1,48 +1,46 @@
+// src/hooks/useTickets.ts
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTickets } from '../services/ticketService';
-import { TicketStatus } from '../types/ticket';
-
-export const useTickets = (status: TicketStatus = 'PENDING', page: number = 1) => {
+import { getTickets, assignTicketBySkills, updateTicketStatus, getStaffBySkills, getSkillsForCategory } from '../services/ticketService';
+export const useTickets = (status = 'PENDING', page = 1) => {
   return useQuery({
     queryKey: ['tickets', status, page],
     queryFn: () => getTickets(status, page),
   });
 };
 
-export const useUpdateTicket = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
-      import('../services/ticketService').then(m => m.updateTicket(id, data)),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets'] });
-    },
-  });
-};
-
+// This mutation is for assigning a ticket by skills automatically
 export const useAssignTicketBySkills = () => {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: (ticketId: string) =>
-      import('../services/ticketService').then(m => m.assignTicketBySkills(ticketId)),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets'] });
-    },
+    mutationFn: assignTicketBySkills,
+    // Invalidate tickets query on success to refetch the list
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tickets'] }),
   });
 };
 
-export const useStaffBySkills = (skills?: string) => {
+// src/hooks/useUpdateTicketStatus.ts
+export const useUpdateTicketStatus = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (variables: { id: string; status: 'PENDING' | 'IN_PROGRESS' | 'CLOSED'; assignedToAdminId?: number; assignedToVendorId?: number }) => updateTicketStatus(variables.id, variables.status, variables.assignedToAdminId, variables.assignedToVendorId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tickets'] }),
+  });
+};
+
+// src/hooks/useStaffBySkills.ts
+export const useStaffBySkills = (skills: string) => {
   return useQuery({
     queryKey: ['staff-by-skills', skills],
-    queryFn: () => import('../services/ticketService').then(m => m.getStaffBySkills(skills)),
+    queryFn: () => getStaffBySkills(skills),
     enabled: !!skills,
   });
 };
 
+// src/hooks/useSkillsForCategory.ts
 export const useSkillsForCategory = () => {
   return useQuery({
     queryKey: ['skills-for-category'],
-    queryFn: () => import('../services/ticketService').then(m => m.getSkillsForCategory),
+    queryFn: getSkillsForCategory,
   });
 };
