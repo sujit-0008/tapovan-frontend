@@ -109,9 +109,9 @@ export default function VendorRegistration() {
                     <option value="">Select Category</option>
                     <option value="electrician">Electrician</option>
                     <option value="plumber">Plumber</option>
-                    <option value="food-vendor">Food Vendor</option>
+                    <option value="FOOD_VENDOR">Food Vendor</option>
                     <option value="laundry">Laundry Service</option>
-                    <option value="medical">Medical Staff</option>
+                    <option value="MEDICAL_VENDOR">Medical Vendor</option>
                   </select>
                 </div>
               </div>

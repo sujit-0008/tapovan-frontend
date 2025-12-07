@@ -33,7 +33,7 @@ export default function VendorDashboard() {
   const updateMenu = useUpdateFoodMenu(editMenuId || '');
 
   if (isVendorLoading) return <p className="p-4 sm:p-6 text-gray-500 text-sm">Loading...</p>;
-  if (vendorData?.vendor.category !== 'food-vendor') {
+  if (vendorData?.vendor.category !== "FOOD_VENDOR")  {
     router.push('/');
     return null;
   }

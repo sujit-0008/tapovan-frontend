@@ -19,6 +19,8 @@ export const useLogin = () => {
         STAFF: '/staffDashboard',
         PARENT: '/parentDashboard',
         VENDOR: '/vendorDashboard',
+        MEDICAL_VENDOR: '/medicalVendorDashboard',
+        FOOD_VENDOR: '/foodVendorDashboard',
       };
       router.push(roleRoutes[data.userType] || '/dashboard');
     },

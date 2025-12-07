@@ -83,5 +83,11 @@ export const API_ROUTES = {
     ASSIGN_BY_SKILLS: '/api/admin/:ticketId/assign-by-skills',
     STAFF_BY_SKILLS: '/api/admin/staff/by-skills',
     SKILLS_FOR_CATEGORY: '/api/admin/skills/mapping',
+  },
+
+  DOCTOR: {
+    SEARCH_STUDENTS: '/api/medical/search-student',
+    MEDICAL_HISTORY: '/api/medical/medical-history/:studentId',
+    ADD_CHECKUP: '/api/medical/checkup-report/:studentId',
   }
 } as const;
