@@ -1,51 +1,61 @@
 'use client'
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 import { useFoodMenus } from '../../../hooks/useFoodMenus';
+import { useMealScanCounts } from '../../../hooks/useMealScanCounts';
+import { useState } from 'react';
 
-const mealData = {
-  totalStudents: 150,
-  mealsTaken: 120,
-  todayMeals: {
-    breakfast: "Poha, Chai, Coffee",
-    lunch: "Roti, Rice, Dal, Aloo Sabji, salad, Dahi",
-    dinner: "Roti, Rice, Dal, Mix veg, salad, peanut chutney"
-  }
-};
+
+
 
 export default function CanteenManagement() {
    const { data: menusData, isLoading: isMenusLoading } = useFoodMenus();
+   const today = new Date().toISOString().split('T')[0];
+   const [scanDate, setScanDate] = useState(today);
+   const { data: scanCountsData, isLoading: isScanCountsLoading } =
+   useMealScanCounts({ date: scanDate });
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Canteen Management</h1>
       </div>
       
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Canteen Activities</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Students</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-hostel-gold">
-                {mealData.totalStudents}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Meals Taken</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-hostel-gold">
-                {mealData.mealsTaken}
-              </div>
-            </CardContent>
-          </Card>
+      <Card>
+      <CardHeader>
+        <CardTitle>Meal Scan Counts</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+          <label className="text-sm text-gray-700">Date</label>
+          <input
+            type="date"
+            value={scanDate}
+            max={today}
+            onChange={(e) => setScanDate(e.target.value)} // changing this state triggers refetch
+            className="w-full sm:w-52 rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
+          />
         </div>
-      </div>
+
+        {isScanCountsLoading ? (
+          <p className="text-sm text-gray-500">Loading scan counts...</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            {(['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'] as const).map((meal) => (
+              <Card key={meal} className="bg-muted/30">
+                <CardContent className="p-4 sm:p-6 text-center">
+                  <h3 className="text-sm text-muted-foreground mb-2">{meal}</h3>
+                  <p className="text-2xl sm:text-3xl font-bold">
+                    {scanCountsData?.counts[meal] ?? 0}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {scanCountsData?.date || scanDate}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
       
      <Card>
         <CardHeader>

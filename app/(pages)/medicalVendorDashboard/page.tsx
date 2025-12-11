@@ -91,7 +91,7 @@ export default function DoctorDashboard() {
                       </div>
                       <div className="flex gap-2">
                         <Button
-                          size="sm"
+                      
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedStudentId(student.id);
@@ -101,7 +101,7 @@ export default function DoctorDashboard() {
                           View History
                         </Button>
                         <Button
-                          size="sm"
+                        
                           variant="outline"
                           onClick={(e) => {
                             e.stopPropagation();

@@ -94,3 +94,17 @@ export interface ErrorResponse {
   errors?: string[];
   message?: string;
 }
+
+export interface GetMealScanCountsResponse {
+  counts: {
+    BREAKFAST: number;
+    LUNCH: number;
+    DINNER: number;
+    SNACK: number;
+  };
+  date: string;
+}
+
+export interface GetMealScanCountsRequest {
+  date?: string;
+}

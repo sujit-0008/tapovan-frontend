@@ -8,7 +8,8 @@ import {
     GetFoodMenusResponse,
     UpdateFoodMenuRequest,
     UpdateFoodMenuResponse,
-    GetMealSkipsResponse
+    GetMealSkipsResponse,
+    GetMealScanCountsResponse
 } from '../types/canteen';
 
 
@@ -34,5 +35,10 @@ export const getMealSkips = async (): Promise<GetMealSkipsResponse> => {
 
 export const getFoodMenus = async (date?: string): Promise<GetFoodMenusResponse> => {
     const response = await api.get<GetFoodMenusResponse>(API_ROUTES.CANTEEN.GET_FOOD_MENUS, { params: { date } });
+    return response.data;
+};
+
+export const getMealScanCounts = async (date?: string): Promise<GetMealScanCountsResponse> => {
+    const response = await api.get<GetMealScanCountsResponse>(API_ROUTES.CANTEEN.GET_MEAL_SCAN_COUNTS, { params: { date } });
     return response.data;
 };

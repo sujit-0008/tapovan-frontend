@@ -12,18 +12,24 @@ import { useUpdateFoodMenu } from '../../hooks/useUpdateFoodMenu';
 import { useMealSkips } from '../../hooks/useMealSkips';
 import { useFoodMenus } from '../../hooks/useFoodMenus';
 import { useVendorDetails } from '../../hooks/useVendorDetails';
+import { useMealScanCounts } from '../../hooks/useMealScanCounts';
 import { useAuthStore } from '../../store/authStore';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function VendorDashboard() {
   const router = useRouter();
   const { user } = useAuthStore();
   const vendorId = user?.id?.toString() || '';
-  
+  const queryClient = useQueryClient();
   // State declarations FIRST
   const [qrForm, setQrForm] = useState({ mealType: '', date: '', time: '' });
   const [menuForm, setMenuForm] = useState({ mealType: '', date: '', items: '', notes: '' });
   const [editMenuId, setEditMenuId] = useState<string | null>(null);
-  
+  const today = new Date().toISOString().split('T')[0];
+  const [scanDate, setScanDate] = useState(today);
+
+  const { data: scanCountsData, isLoading: isScanCountsLoading } =
+    useMealScanCounts({ date: scanDate });
   // Then hook calls
   const { data: vendorData, isLoading: isVendorLoading } = useVendorDetails(vendorId);
   const { mutate: generateQR, data: qrData, isPending: isGeneratingQR } = useGenerateMealQR();
@@ -32,6 +38,8 @@ export default function VendorDashboard() {
   const { data: menusData, isLoading: isMenusLoading } = useFoodMenus();
   const updateMenu = useUpdateFoodMenu(editMenuId || '');
 
+  const { data: mealScanCountsData, isLoading: isMealScanCountsLoading } = useMealScanCounts({ date: today });  
+  console.log(mealScanCountsData);  
   if (isVendorLoading) return <p className="p-4 sm:p-6 text-gray-500 text-sm">Loading...</p>;
   if (vendorData?.vendor.category !== "FOOD_VENDOR")  {
     router.push('/');
@@ -90,7 +98,6 @@ export default function VendorDashboard() {
   };
 
   // ...rest of the component remains the same...
-  const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 space-y-8">
@@ -436,20 +443,44 @@ export default function VendorDashboard() {
       </Card>
 
           {/* Stats (Placeholder) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-        {[
-          { title: 'Total Meals Sold', value: '150' },
-          { title: 'Meals Scanned', value: '120' },
-          { title: 'Meals Not Scanned', value: '30' },
-        ].map((stat, index) => (
-          <Card key={index} className="bg-muted/30">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <h3 className="text-sm text-muted-foreground mb-2">{stat.title}</h3>
-              <p className="text-2xl sm:text-4xl font-bold">{stat.value}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+    {/* Meal Scan Counts */}
+    <Card>
+      <CardHeader>
+        <CardTitle>Meal Scan Counts</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+          <label className="text-sm text-gray-700">Date</label>
+          <input
+            type="date"
+            value={scanDate}
+            max={today}
+            onChange={(e) => setScanDate(e.target.value)} // changing this state triggers refetch
+            className="w-full sm:w-52 rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
+          />
+        </div>
+
+        {isScanCountsLoading ? (
+          <p className="text-sm text-gray-500">Loading scan counts...</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            {(['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'] as const).map((meal) => (
+              <Card key={meal} className="bg-muted/30">
+                <CardContent className="p-4 sm:p-6 text-center">
+                  <h3 className="text-sm text-muted-foreground mb-2">{meal}</h3>
+                  <p className="text-2xl sm:text-3xl font-bold">
+                    {scanCountsData?.counts[meal] ?? 0}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {scanCountsData?.date || scanDate}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
     </div>
   );
 }

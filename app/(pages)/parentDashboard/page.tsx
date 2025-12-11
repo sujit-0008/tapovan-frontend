@@ -20,7 +20,7 @@ export default function ParentDashboard() {
   const { parentInfo,studentInfo, attendance, mealAttendance, checkupReports } = data;
 console.log("Parent Info:",parentInfo);
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 space-y-8">
+    <div className="min-h-screen bg-background p-4 xl:m-20 sm:p-6 space-y-8">
       {/* <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Parent Dashboard</h1>
         <div className="flex gap-4">

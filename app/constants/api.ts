@@ -45,6 +45,7 @@ export const API_ROUTES = {
     UPDATE_FOOD_MENU: '/api/food-menu/:id', // New
     GET_MEAL_SKIPS: '/api/meal-skips', // New
     GET_FOOD_MENUS: '/api/admin/canteen/food-menus', // New
+    GET_MEAL_SCAN_COUNTS: '/api/meal-scan-counts', // New
 
   },
    PARENT: {
