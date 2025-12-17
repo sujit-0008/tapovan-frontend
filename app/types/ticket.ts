@@ -11,6 +11,7 @@ export interface Ticket {
   status: 'PENDING' | 'IN_PROGRESS' | 'CLOSED';
   assignedToAdminId?: number | null;
   assignedToVendorId?: number | null;
+
   createdAt: string;
   raisedBy: {
     firstName: string;
@@ -23,6 +24,30 @@ export interface Ticket {
     phone: string;
     skills: string[];
   };
+}
+
+// For staff-specific detailed ticket view
+export interface AuditLog {
+  id: number;
+  action: string;
+  details: string;
+  timestamp: string;
+}
+
+export interface StaffTicket extends Ticket {
+  assignedToVendor?: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  auditLogs?: AuditLog[];
+}
+
+export interface StaffTicketsResponse {
+  tickets: StaffTicket[];
+  total: number;
+  page: number;
+  pages: number;
 }
 
 export interface TicketsResponse {

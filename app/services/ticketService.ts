@@ -4,6 +4,8 @@ import {
   TicketsResponse,
   StaffBySkillsResponse,
   SkillMapping,
+  StaffTicket,
+  StaffTicketsResponse,
 } from '../types/ticket';
 
 export const getTickets = async (
@@ -32,6 +34,35 @@ export const updateTicketStatus = async (
 export const assignTicketBySkills = async (ticketId: string): Promise<any> => {
   const response = await api.post(
     API_ROUTES.TICKET.ASSIGN_BY_SKILLS.replace(':id', ticketId), {}
+  );
+  return response.data;
+};
+
+// Staff-specific services
+export const getMyAssignedTickets = async (
+  status: string = '',
+  page: number = 1
+): Promise<StaffTicketsResponse> => {
+  const response = await api.get<StaffTicketsResponse>(API_ROUTES.TICKET.STAFF_ASSIGNED, {
+    params: { status, page },
+  });
+  return response.data;
+};
+
+export const getMyTicketDetails = async (id: string): Promise<{ ticket: StaffTicket }> => {
+  const response = await api.get<{ ticket: StaffTicket }>(
+    API_ROUTES.TICKET.STAFF_DETAILS.replace(':id', id)
+  );
+  return response.data;
+};
+
+export const updateMyTicketStatus = async (
+  id: string,
+  status: 'PENDING' | 'IN_PROGRESS' | 'CLOSED'
+): Promise<any> => {
+  const response = await api.post(
+    API_ROUTES.TICKET.STAFF_UPDATE_STATUS.replace(':id', id),
+    { status }
   );
   return response.data;
 };
