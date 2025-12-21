@@ -93,5 +93,12 @@ export const API_ROUTES = {
     SEARCH_STUDENTS: '/api/medical/search-student',
     MEDICAL_HISTORY: '/api/medical/medical-history/:studentId',
     ADD_CHECKUP: '/api/medical/checkup-report/:studentId',
+  },
+  COMMON_MESSAGE: {
+    LIST: '/api/admin/common-message',
+    CREATE: '/api/admin/common-message',
+    UPDATE: '/api/admin/common-message/:id',
+    DELETE: '/api/admin/common-message/:id',
+    ACTIVE: '/api/admin/common-message/active',
   }
 } as const;

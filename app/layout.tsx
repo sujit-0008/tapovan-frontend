@@ -6,6 +6,7 @@ import "./globals.css";
 import { Footer } from "./components/Footer";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Navigation } from "./components/Navigation";
+import AnnouncementBar from "./components/AnnouncementBar";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -35,6 +36,7 @@ export default function RootLayout({
       >
         <QueryClientProvider client={queryClient}>
         <Navigation />
+        <AnnouncementBar />
         {children}
         <Footer />
         </QueryClientProvider>
