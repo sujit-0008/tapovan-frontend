@@ -14,6 +14,7 @@ export default function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProp
     roomNumber: '',
     floor: '',
     building: '',
+    wing:'',
     capacity: '',
     roomType: '',
     amenities: '',
@@ -39,6 +40,7 @@ export default function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProp
         building: formData.building || undefined,
         capacity: Number(formData.capacity),
         roomType: formData.roomType || undefined,
+        wing: formData.wing || undefined,
         amenities: formData.amenities
           ? formData.amenities.split(',').map((a) => a.trim())
           : undefined,
@@ -51,6 +53,7 @@ export default function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProp
           setFormData({
             roomNumber: '',
             floor: '',
+            wing:'',
             building: '',
             capacity: '',
             roomType: '',
@@ -136,6 +139,23 @@ export default function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProp
                   setFormData({ ...formData, building: e.target.value })
                 }
                 placeholder="e.g., Building A"
+                className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-hostel-gold focus:outline-none"
+                disabled={isCreating}
+              />
+            </div>
+
+            {/* Wing */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Wing
+              </label>
+              <input
+                type="text"
+                value={formData.wing}
+                onChange={(e) =>
+                  setFormData({ ...formData, wing: e.target.value })
+                }
+                placeholder="e.g., A, B, C"
                 className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-hostel-gold focus:outline-none"
                 disabled={isCreating}
               />

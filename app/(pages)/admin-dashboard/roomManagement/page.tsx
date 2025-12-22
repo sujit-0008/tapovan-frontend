@@ -17,6 +17,7 @@ export default function RoomManagement() {
   const [search, setSearch] = useState('');
   const [building, setBuilding] = useState('');
   const [floor, setFloor] = useState<number | ''>('');
+  const [wing, setWing] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -41,7 +42,9 @@ export default function RoomManagement() {
     return (
       room.roomNumber.toLowerCase().includes(searchLower) ||
       room.building?.toLowerCase().includes(searchLower) ||
-      room.description?.toLowerCase().includes(searchLower)
+      room.description?.toLowerCase().includes(searchLower)||
+      room.wing?.toLowerCase().includes(searchLower)
+    
     );
   });
 
@@ -112,19 +115,13 @@ export default function RoomManagement() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <input
                     type="text"
-                    placeholder="Search by room number or building"
+                    placeholder="Search by room number or building or wing"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-hostel-gold focus:outline-none"
                   />
                 </div>
-                <input
-                  type="text"
-                  placeholder="Building"
-                  value={building}
-                  onChange={(e) => setBuilding(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-hostel-gold focus:outline-none"
-                />
+          
                 <input
                   type="number"
                   placeholder="Floor"
@@ -155,7 +152,8 @@ export default function RoomManagement() {
                 <p className="text-gray-500 text-sm text-center mt-6">No rooms found.</p>
               )}
               {!roomsLoading && !roomsError && filteredRooms.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div className="flex flex-col sm:grid md:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+>
                   {filteredRooms.map((room) => {
                     const activeAssignments = room.assignments.filter(
                       (a) => a.status === 'ACTIVE'
@@ -167,7 +165,7 @@ export default function RoomManagement() {
                     return (
                       <Card
                         key={room.id}
-                        className="shadow-md hover:shadow-lg transition rounded-2xl"
+                        className="shadow-md hover:shadow-lg transition rounded-2xl "
                       >
                         <CardContent className="p-4 sm:p-6 space-y-4">
                           <div className="flex justify-between items-start">
@@ -176,7 +174,7 @@ export default function RoomManagement() {
                                 Room {room.roomNumber}
                               </h3>
                               <p className="text-sm text-gray-500">
-                                {room.building} {room.floor && `- Floor ${room.floor}`}
+                                {room.building} ,{room.wing && `Wing ${room.wing}`} ,{room.floor && `- Floor ${room.floor}`}
                               </p>
                             </div>
                             <span
@@ -306,6 +304,9 @@ export default function RoomManagement() {
                       <th className="text-left py-3 px-4 font-semibold text-gray-700">
                         Floor
                       </th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">  
+                        Wing
+                      </th>
                       <th className="text-center py-3 px-4 font-semibold text-gray-700">
                         Capacity
                       </th>
@@ -331,6 +332,7 @@ export default function RoomManagement() {
                         </td>
                         <td className="py-3 px-4 text-gray-600">{room.building || 'N/A'}</td>
                         <td className="py-3 px-4 text-gray-600">{room.floor || 'N/A'}</td>
+                        <td className="py-3 px-4 text-gray-600">{room.wing || 'N/A'}</td>
                         <td className="py-3 px-4 text-center text-gray-600">
                           {room.capacity}
                         </td>

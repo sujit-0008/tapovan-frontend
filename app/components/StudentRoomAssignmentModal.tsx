@@ -135,6 +135,7 @@ export default function StudentRoomAssignmentModal({
                     <div className="space-y-1 text-sm text-gray-600">
                       {room.building && <p>Building: {room.building}</p>}
                       {room.floor !== null && <p>Floor: {room.floor}</p>}
+                      {room.wing && <p>Wing: {room.wing}</p>}
                       {room.roomType && <p>Type: {room.roomType}</p>}
                       <p>Capacity: {room.capacity}</p>
                     </div>

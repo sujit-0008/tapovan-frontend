@@ -48,7 +48,7 @@ export default function RoomOccupantsModal({ isOpen, onClose, room }: RoomOccupa
               Room {room.roomNumber} Occupants
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {room.building} {room.floor && `- Floor ${room.floor}`}
+              {room.building} {room.wing && `Wing ${room.wing}`} {room.floor && `- Floor ${room.floor}`}
             </p>
           </div>
           <button

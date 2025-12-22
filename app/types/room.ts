@@ -5,6 +5,7 @@ export interface Room {
   building: string | null;
   capacity: number;
   roomType: string | null;
+  wing: string | null;
   amenities: string[];
   description: string | null;
   isActive: boolean;
@@ -36,6 +37,7 @@ export interface RoomAssignment {
 export interface CreateRoomRequest {
   roomNumber: string;
   floor?: number;
+  wing?: string;
   building?: string;
   capacity: number;
   roomType?: string;
@@ -55,6 +57,7 @@ export interface UpdateRoomRequest {
   floor?: number;
   building?: string;
   capacity?: number;
+  wing?: string;
   roomType?: string;
   amenities?: string[];
   description?: string;
@@ -120,6 +123,7 @@ export interface GetRoomOccupancyReportResponse {
     roomNumber: string;
     building: string | null;
     floor: number | null;
+    wing: string | null;
     capacity: number;
     occupied: number;
     available: number;

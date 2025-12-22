@@ -16,6 +16,7 @@ export default function EditRoomModal({ isOpen, onClose, room }: EditRoomModalPr
     roomNumber: '',
     floor: '',
     building: '',
+    wing:'',
     capacity: '',
     roomType: '',
     amenities: '',
@@ -33,6 +34,7 @@ export default function EditRoomModal({ isOpen, onClose, room }: EditRoomModalPr
         floor: room.floor?.toString() || '',
         building: room.building || '',
         capacity: room.capacity.toString(),
+        wing: room.wing || '',  
         roomType: room.roomType || '',
         amenities: room.amenities?.join(', ') || '',
         description: room.description || '',
@@ -57,6 +59,7 @@ export default function EditRoomModal({ isOpen, onClose, room }: EditRoomModalPr
         building: formData.building || undefined,
         capacity: Number(formData.capacity),
         roomType: formData.roomType || undefined,
+        wing: formData.wing || undefined,
         amenities: formData.amenities
           ? formData.amenities.split(',').map((a) => a.trim())
           : undefined,
@@ -164,6 +167,24 @@ export default function EditRoomModal({ isOpen, onClose, room }: EditRoomModalPr
                 disabled={isUpdating}
               />
             </div>
+
+            {/* Wing */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Wing
+              </label>
+              <input
+                type="text"
+                value={formData.wing}
+                onChange={(e) =>
+                  setFormData({ ...formData, wing: e.target.value })
+                }
+                placeholder="e.g., North, South"
+                className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-hostel-gold focus:outline-none"
+                disabled={isUpdating}
+              />
+            </div>  
+
 
             {/* Room Type */}
             <div>
