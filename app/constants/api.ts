@@ -1,3 +1,5 @@
+import { REACT_LOADABLE_MANIFEST } from "next/dist/shared/lib/constants";
+
 export const API_ROUTES = {
   AUTH: {
     LOGIN: '/api/auth/login',
@@ -87,6 +89,7 @@ export const API_ROUTES = {
     STAFF_ASSIGNED: '/api/staff/tickets',
     STAFF_DETAILS: '/api/staff/tickets/:id',
     STAFF_UPDATE_STATUS: '/api/staff/tickets/:id/status',
+    REASSIGN_TICKET: '/api/admin/tickets/:ticketId/reassign',
   },
 
   DOCTOR: {

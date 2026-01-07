@@ -66,7 +66,7 @@ const About = () => {
                   <div>
                     <h3 className="text-xl font-semibold mb-3">Support</h3>
                     <p className="text-hostel-textDark/80">
-                      We provide comprehensive support services to ensure students' well-being and academic success. Our staff is available 24/7 to assist with any needs, and we offer resources to help students thrive.
+                      We provide comprehensive support services to ensure students well-being and academic success. Our staff is available 24/7 to assist with any needs, and we offer resources to help students thrive.
                     </p>
                   </div>
                 </div>

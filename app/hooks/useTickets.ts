@@ -1,7 +1,7 @@
 // src/hooks/useTickets.ts
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTickets, assignTicketBySkills, updateTicketStatus, getStaffBySkills, getSkillsForCategory } from '../services/ticketService';
+import { getTickets, assignTicketBySkills, updateTicketStatus, getStaffBySkills, getSkillsForCategory ,  reassignTicketBySkills} from '../services/ticketService';
 export const useTickets = (status = 'PENDING', page = 1) => {
   return useQuery({
     queryKey: ['tickets', status, page],
@@ -42,5 +42,16 @@ export const useSkillsForCategory = () => {
   return useQuery({
     queryKey: ['skills-for-category'],
     queryFn: getSkillsForCategory,
+  });
+};
+
+// src/hooks/useReassignTicket.ts
+export const useReassignTicketBySkills = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (variables: { ticketId: string; staffId: number }) => reassignTicketBySkills(variables.ticketId, variables.staffId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tickets'] });
+    },
   });
 };

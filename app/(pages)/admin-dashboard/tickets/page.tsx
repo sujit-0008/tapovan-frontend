@@ -5,10 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui
 import { Input } from '../../../components/ui/input';
 import { Select } from '../../..//components/ui/select';
 import { Button } from '../../..//components/ui/button';
-import { useTickets, useUpdateTicketStatus, useStaffBySkills, useSkillsForCategory } from '../../../hooks/useTickets';
+import {
+  useTickets,
+  useUpdateTicketStatus,
+  useStaffBySkills,
+  useSkillsForCategory,
+  useReassignTicketBySkills,
+} from '../../../hooks/useTickets';
 import { ChevronDown, Wrench } from 'lucide-react';
 import { TicketStatus } from '../../../types/ticket';
-import { Search, UserCheck, Clock, CheckCircle } from 'lucide-react';
+import { Search, UserCheck, Clock, CheckCircle, RefreshCw } from 'lucide-react';
 
 export default function TicketManagement() {
   const [statusFilter, setStatusFilter] = useState<'PENDING' | 'IN_PROGRESS' | 'CLOSED'>('PENDING');
@@ -16,55 +22,71 @@ export default function TicketManagement() {
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showReassignModal, setShowReassignModal] = useState(false);
   const [searchSkills, setSearchSkills] = useState('');
   const [selectedStaffId, setSelectedStaffId] = useState('');
-  //const [openUpdateStatusDropdown, setOpenUpdateStatusDropdown] = useState(false);
+  const [reassignReason, setReassignReason] = useState('');
   const [openStatusDropdown, setOpenStatusDropdown] = useState(false);
+
   const { data, isLoading } = useTickets(statusFilter, page);
   const { data: skillsData } = useSkillsForCategory();
   const { data: staffData } = useStaffBySkills(searchSkills);
   const statusMutation = useUpdateTicketStatus();
+  const reassignMutation = useReassignTicketBySkills();
 
   const skillMapping = skillsData?.skillMapping || {};
- const stats = {
+
+  const stats = {
     PENDING: data?.tickets.filter(t => t.status === 'PENDING').length || 0,
     IN_PROGRESS: data?.tickets.filter(t => t.status === 'IN_PROGRESS').length || 0,
     CLOSED: data?.tickets.filter(t => t.status === 'CLOSED').length || 0,
   };
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'PENDING': return 'bg-yellow-100 text-yellow-800';
-      case 'IN_PROGRESS': return 'bg-blue-100 text-blue-800';
-      case 'CLOSED': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'IN_PROGRESS':
+        return 'bg-blue-100 text-blue-800';
+      case 'CLOSED':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const handleAssign = (ticket: any):void => {
+  const handleAssign = (ticket: any): void => {
     setSelectedTicket(ticket);
     const suggested = skillMapping[ticket.category] || [];
     setSearchSkills(suggested.join(','));
     setShowAssignModal(true);
   };
 
-  const handleStatusChange = (ticket: any):void => {
+  const handleStatusChange = (ticket: any): void => {
     setSelectedTicket(ticket);
     setShowStatusModal(true);
   };
 
+  const handleReassign = (ticket: any): void => {
+    setSelectedTicket(ticket);
+    setReassignReason('');
+    setShowReassignModal(true);
+  };
+
   const confirmAssign = () => {
     if (!selectedTicket || !selectedStaffId) return;
-    // Use the status mutation to assign a staff member and update status
     statusMutation.mutate(
       {
         id: selectedTicket.id.toString(),
-        status: 'IN_PROGRESS', // Assigning moves the ticket to IN_PROGRESS
+        status: 'IN_PROGRESS',
         assignedToAdminId: parseInt(selectedStaffId),
       },
-      { onSuccess: () => {
-        setShowAssignModal(false);
-        setSelectedStaffId('');
-      } }
+      {
+        onSuccess: () => {
+          setShowAssignModal(false);
+          setSelectedStaffId('');
+        },
+      }
     );
   };
 
@@ -72,10 +94,29 @@ export default function TicketManagement() {
     if (!selectedTicket) return;
     statusMutation.mutate(
       { id: selectedTicket.id.toString(), status: newStatus },
-      { onSuccess: () => {
-        setShowStatusModal(false);
-        setSelectedTicket(null);
-      }}
+      {
+        onSuccess: () => {
+          setShowStatusModal(false);
+          setSelectedTicket(null);
+        },
+      }
+    );
+  };
+
+  const confirmReassign = () => {
+    if (!selectedTicket) return;
+    reassignMutation.mutate(
+      {
+        ticketId: selectedTicket.id.toString(),
+        reason : reassignReason,
+      },
+      {
+        onSuccess: () => {
+          setShowReassignModal(false);
+          setSelectedTicket(null);
+          setReassignReason('');
+        },
+      }
     );
   };
 
@@ -86,8 +127,6 @@ export default function TicketManagement() {
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
-   
-    
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
@@ -182,35 +221,55 @@ export default function TicketManagement() {
                       </td>
                       <td className="py-3 px-4 text-sm">{ticket.category}</td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(ticket.status)}`}>
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
+                            ticket.status
+                          )}`}
+                        >
                           {ticket.status.replace('_', ' ')}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-sm">
-                        Staff id: {ticket.assignedToAdminId ? ticket.assignedToAdminId : 'Unassigned'}
+                        {ticket.assignedToAdminId
+                          ? `Staff id: ${ticket.assignedToAdminId}`
+                          : 'Unassigned'}
                       </td>
                       <td className="py-3 px-4">
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                           {ticket.status === 'PENDING' && (
-                            <Button  onClick={() => handleAssign(ticket)}>
+                            <Button onClick={() => handleAssign(ticket)}>
                               <UserCheck className="h-4 w-4 mr-1" />
                               Assign
                             </Button>
                           )}
-                          {(ticket.status === 'PENDING' || ticket.status === 'IN_PROGRESS') && (
-                            <Button  variant="outline" onClick={() => handleStatusChange(ticket)}>
+                          {(ticket.status === 'PENDING' ||
+                            ticket.status === 'IN_PROGRESS') && (
+                            <Button
+                              variant="outline"
+                              onClick={() => handleStatusChange(ticket)}
+                            >
                               <Clock className="h-4 w-4 mr-1" />
                               Update
                             </Button>
                           )}
                           {ticket.status === 'IN_PROGRESS' && (
-                            <Button  className="bg-green-500 text-white hover:bg-green-600"
-                              onClick={() => handleCloseTicket(ticket)}>
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Close
-                            </Button>
+                            <>
+                              <Button
+                                className="bg-green-500 text-white hover:bg-green-600"
+                                onClick={() => handleCloseTicket(ticket)}
+                              >
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Close
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => handleReassign(ticket)}
+                              >
+                                <RefreshCw className="h-4 w-4 mr-1" />
+                                Reassign
+                              </Button>
+                            </>
                           )}
-                          
                         </div>
                       </td>
                     </tr>
@@ -230,7 +289,9 @@ export default function TicketManagement() {
               >
                 Previous
               </Button>
-              <span className="py-2">Page {data.page} of {data.pages}</span>
+              <span className="py-2">
+                Page {data.page} of {data.pages}
+              </span>
               <Button
                 variant="outline"
                 disabled={page === data.pages}
@@ -249,11 +310,15 @@ export default function TicketManagement() {
           <Card className="w-full max-w-lg bg-white shadow-lg rounded-lg">
             <CardHeader>
               <CardTitle>Assign Ticket #{selectedTicket.id}</CardTitle>
-              <p className="text-sm text-gray-500">Category: {selectedTicket.category}</p>
+              <p className="text-sm text-gray-500">
+                Category: {selectedTicket.category}
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block text-sm font-medium">Search Staff by Skills</label>
+                <label className="block text-sm font-medium">
+                  Search Staff by Skills
+                </label>
                 <div className="relative mt-1">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
@@ -271,29 +336,40 @@ export default function TicketManagement() {
                     <div
                       key={staff.id}
                       className={`p-3 border-b cursor-pointer hover:bg-gray-50 transition-colors ${
-                        selectedStaffId === staff.id.toString() ? 'bg-hostel-gold/10' : ''
+                        selectedStaffId === staff.id.toString()
+                          ? 'bg-hostel-gold/10'
+                          : ''
                       }`}
                       onClick={() => setSelectedStaffId(staff.id.toString())}
                     >
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="font-medium">{staff.name}</p>
-                          <p className="text-sm text-gray-500">{staff.skills.join(', ')}</p>
+                          <p className="text-sm text-gray-500">
+                            {staff.skills.join(', ')}
+                          </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs text-gray-500">Active tickets</p>
+                          <p className="text-xs text-gray-500">
+                            Active tickets
+                          </p>
                           <p className="font-medium">{staff.activeTickets}</p>
                         </div>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="p-4 text-center text-gray-500">No staff found</p>
+                  <p className="p-4 text-center text-gray-500">
+                    No staff found
+                  </p>
                 )}
               </div>
 
               <div className="flex justify-end gap-3">
-                <Button variant="outline" onClick={() => setShowAssignModal(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAssignModal(false)}
+                >
                   Cancel
                 </Button>
                 <Button
@@ -316,23 +392,81 @@ export default function TicketManagement() {
               <CardTitle>Ticket #{selectedTicket.id}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm">Current status: <strong>{selectedTicket.status.replace('_', ' ')}</strong></p>
+              <p className="text-sm">
+                Current status:{' '}
+                <strong>{selectedTicket.status.replace('_', ' ')}</strong>
+              </p>
               <div className="flex flex-col gap-3">
                 {selectedTicket.status === 'PENDING' && (
                   <Button onClick={() => confirmStatus('IN_PROGRESS')}>
                     Mark as In Progress
                   </Button>
                 )}
-              
+
                 {selectedTicket.status === 'IN_PROGRESS' && (
-                  <Button className="bg-green-600 hover:bg-green-700" onClick={() => confirmStatus('CLOSED')}>
+                  <Button
+                    className="bg-green-600 hover:bg-green-700"
+                    onClick={() => confirmStatus('CLOSED')}
+                  >
                     Mark as Closed
                   </Button>
                 )}
 
-                
-                <Button variant="outline" onClick={() => setShowStatusModal(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowStatusModal(false)}
+                >
                   Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Reassign Modal */}
+      {showReassignModal && selectedTicket && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-lg bg-white shadow-lg rounded-lg">
+            <CardHeader>
+              <CardTitle>Reassign Ticket #{selectedTicket.id}</CardTitle>
+              <p className="text-sm text-gray-500">
+                Category: {selectedTicket.category}
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Reason for Reassignment (Optional)
+                </label>
+                <Input
+                  placeholder="e.g., Skills mismatch, Better expertise needed"
+                  value={reassignReason}
+                  onChange={(e) => setReassignReason(e.target.value)}
+                />
+              </div>
+
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  ℹ️ This will automatically assign the ticket to the most
+                  suitable available staff member based on skills and workload.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowReassignModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={confirmReassign}
+                  disabled={reassignMutation.isPending}
+                >
+                  {reassignMutation.isPending
+                    ? 'Reassigning...'
+                    : 'Reassign Ticket'}
                 </Button>
               </div>
             </CardContent>

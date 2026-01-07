@@ -22,7 +22,7 @@ export const AdminSidebar = () => {
   { path: "/admin-dashboard", label: "Notification", icon: LayoutDashboard },
   { path: "/admin-dashboard/UserManagement", label: "User Management", icon: Users },
   { path: "/admin-dashboard/canteenManagement", label: "Canteen", icon: Utensils },
-  { path: "/admin-dashboard/gameRoomManagement", label: "Game Room", icon: Gamepad2 },
+  //{ path: "/admin-dashboard/gameRoomManagement", label: "Game Room", icon: Gamepad2 },
   { path: "/admin-dashboard/allStudent", label: "All Student", icon: Heart },
   { path: "/admin-dashboard/allVendor", label: "All Vendor", icon: Truck },
   { path: "/admin-dashboard/roomManagement", label: "Room Management", icon: Star },

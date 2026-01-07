@@ -73,3 +73,24 @@ export interface StaffBySkillsResponse {
 export interface SkillMapping {
   [category: string]: string[];
 }
+export interface ReassignTicketPayload {
+  
+  staffId: number;
+  reason?: string;
+}
+
+export interface ReassignTicketResponse {
+  message: string;
+  ticket: Ticket;
+  previousAssignee: {
+    id: number;
+    name: string;
+  };
+  newAssignee: {
+    id: number;
+    name: string;
+    email: string;
+    skills: string[];
+    activeTickets: number;
+  };
+}

@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from 'react';
+import {  useState } from 'react';
 import { useStaffTickets, useStaffTicketDetails, useUpdateMyTicketStatus } from '../../hooks/useStaffTickets';
 import { TicketStatus } from '../../types/ticket';
 

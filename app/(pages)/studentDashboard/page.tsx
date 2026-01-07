@@ -181,7 +181,7 @@ export default function StudentDashboard() {
       </Card>
 
       {/* Facility Booking */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>Create Facility Booking</CardTitle>
         </CardHeader>
@@ -233,7 +233,7 @@ export default function StudentDashboard() {
             </Button>
           </form>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Create Ticket */}
       <Card>
@@ -300,7 +300,7 @@ export default function StudentDashboard() {
       </Card>
 
       {/* Bookings */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>My Bookings</CardTitle>
         </CardHeader>
@@ -342,7 +342,7 @@ export default function StudentDashboard() {
             </table>
           )}
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }

@@ -6,6 +6,8 @@ import {
   SkillMapping,
   StaffTicket,
   StaffTicketsResponse,
+  ReassignTicketResponse,
+  ReassignTicketPayload,
 } from '../types/ticket';
 
 export const getTickets = async (
@@ -76,5 +78,16 @@ export const getStaffBySkills = async (skills: string): Promise<StaffBySkillsRes
 
 export const getSkillsForCategory = async (): Promise<{ skillMapping: SkillMapping }> => {
   const response = await api.get(API_ROUTES.TICKET.SKILLS_FOR_CATEGORY);
+  return response.data;
+};
+
+export const reassignTicketBySkills = async (
+  ticketId: string,
+  staffId: number
+): Promise<ReassignTicketResponse> => {
+  const response = await api.post<ReassignTicketResponse>(
+    API_ROUTES.TICKET.REASSIGN_TICKET.replace(':ticketId', ticketId),
+    { staffId }
+  );
   return response.data;
 };

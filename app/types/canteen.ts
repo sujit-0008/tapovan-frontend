@@ -44,16 +44,23 @@ export interface GetFoodMenusResponse {
 }
 
 
-export interface CreateFoodMenuRequest {
+export interface DailyFoodMenuInput {
   mealType: 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK';
-  date: string;
   items: string[];
   notes?: string;
 }
 
+export interface CreateFoodMenuRequest {
+  date: string;
+  menus: DailyFoodMenuInput[];
+}
+
 export interface CreateFoodMenuResponse {
   message: string;
-  menu: FoodMenu;
+  // When creating menus for multiple meal types we return an array,
+  // for backwards compatibility the API may also return a single menu.
+  menu?: FoodMenu;
+  menus?: FoodMenu[];
 }
 
 export interface UpdateFoodMenuRequest {
@@ -68,22 +75,14 @@ export interface UpdateFoodMenuResponse {
   menu: FoodMenu;
 }
 
-export interface MealSkip {
-  id: number;
-  studentId: number;
-  date: string;
-  mealType: string;
-  createdAt: string;
-
-  student: {
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
-}
-
 export interface GetMealSkipsResponse {
-  skips: MealSkip[];
+  counts: {
+    BREAKFAST: number;
+    LUNCH: number;
+    DINNER: number;
+    SNACK: number;
+  };
+  date: string;
 }
 
 // export interface GetFoodMenusResponse {

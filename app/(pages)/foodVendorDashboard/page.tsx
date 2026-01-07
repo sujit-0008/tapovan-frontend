@@ -8,9 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
-import { Accordion } from "../../components/ui/accordion";
+
 import { QRCodeCanvas } from "qrcode.react";
-import { AlertCircle, CheckCircle } from "lucide-react";
+
 import { useGenerateMealQR } from "../../hooks/useGenerateMealQR";
 import { useCreateFoodMenu } from "../../hooks/useCreateFoodMenu";
 import { useUpdateFoodMenu } from "../../hooks/useUpdateFoodMenu";
@@ -28,11 +28,15 @@ export default function VendorDashboard() {
   const queryClient = useQueryClient();
   // State declarations FIRST
   const [qrForm, setQrForm] = useState({ mealType: "", date: "", time: "" });
-  const [menuForm, setMenuForm] = useState({
-    mealType: "",
-    date: "",
-    items: "",
-    notes: "",
+  const [menuDate, setMenuDate] = useState("");
+  const [menuItemsByMeal, setMenuItemsByMeal] = useState<Record<
+    "BREAKFAST" | "LUNCH" | "DINNER" | "SNACK",
+    { items: string; notes: string }
+  >>({
+    BREAKFAST: { items: "", notes: "" },
+    LUNCH: { items: "", notes: "" },
+    DINNER: { items: "", notes: "" },
+    SNACK: { items: "", notes: "" },
   });
   const [editMenuId, setEditMenuId] = useState<string | null>(null);
   const today = new Date().toISOString().split("T")[0];
@@ -80,40 +84,113 @@ export default function VendorDashboard() {
 
   const handleMenuSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const items = menuForm.items
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-    const data = {
-      mealType: menuForm.mealType as "BREAKFAST" | "LUNCH" | "DINNER" | "SNACK",
-      date: menuForm.date,
-      items,
-      notes: menuForm.notes || undefined,
-    };
 
-    if (editMenuId) {
-      updateMenu.mutate(data, {
-        onSuccess: () => {
-          setEditMenuId(null);
-          setMenuForm({ mealType: "", date: "", items: "", notes: "" });
-        },
-      });
-    } else {
-      createMenu(data, {
-        onSuccess: () =>
-          setMenuForm({ mealType: "", date: "", items: "", notes: "" }),
-      });
+    if (!menuDate) {
+      alert("Please select a date for the menu");
+      return;
     }
+
+    // When editing a single menu, keep the previous behaviour
+    if (editMenuId) {
+      const editingMenu = Object.entries(menuItemsByMeal).find(
+        ([, value]) => value.items.trim().length > 0
+      );
+
+      if (!editingMenu) {
+        alert("Please enter items for the meal you are editing");
+        return;
+      }
+
+      const [mealType, value] = editingMenu as [
+        "BREAKFAST" | "LUNCH" | "DINNER" | "SNACK",
+        { items: string; notes: string }
+      ];
+
+      const items = value.items
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+      updateMenu.mutate(
+        {
+          mealType,
+          date: menuDate,
+          items,
+          notes: value.notes || undefined,
+        },
+        {
+          onSuccess: () => {
+            setEditMenuId(null);
+            setMenuDate("");
+            setMenuItemsByMeal({
+              BREAKFAST: { items: "", notes: "" },
+              LUNCH: { items: "", notes: "" },
+              DINNER: { items: "", notes: "" },
+              SNACK: { items: "", notes: "" },
+            });
+          },
+        }
+      );
+
+      return;
+    }
+
+    // New behaviour: create menus for multiple meal types in one go
+    const menus = (["BREAKFAST", "LUNCH", "DINNER", "SNACK"] as const)
+      .map((meal) => {
+        const value = menuItemsByMeal[meal];
+        const items = value.items
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
+        if (items.length === 0) return null;
+        return {
+          mealType: meal,
+          items,
+          notes: value.notes || undefined,
+        };
+      })
+      .filter(Boolean) as {
+      mealType: "BREAKFAST" | "LUNCH" | "DINNER" | "SNACK";
+      items: string[];
+      notes?: string;
+    }[];
+
+    if (menus.length === 0) {
+      alert("Please enter items for at least one meal type");
+      return;
+    }
+
+    createMenu(
+      {
+        date: menuDate,
+        menus,
+      },
+      {
+        onSuccess: () => {
+          setMenuDate("");
+          setMenuItemsByMeal({
+            BREAKFAST: { items: "", notes: "" },
+            LUNCH: { items: "", notes: "" },
+            DINNER: { items: "", notes: "" },
+            SNACK: { items: "", notes: "" },
+          });
+        },
+      }
+    );
   };
 
   const handleEditMenu = (menu: any) => {
     setEditMenuId(menu.id.toString());
-    setMenuForm({
-      mealType: menu.mealType,
-      date: new Date(menu.date).toISOString().split("T")[0],
-      items: menu.items.join(", "),
-      notes: menu.notes || "",
-    });
+    const date = new Date(menu.date).toISOString().split("T")[0];
+    setMenuDate(date);
+    setMenuItemsByMeal((prev) => ({
+      ...prev,
+      [menu.mealType]: {
+        items: menu.items.join(", "),
+        notes: menu.notes || "",
+      },
+    }));
     // Scroll to Create/Edit Menu section
     document
       .getElementById("menu-form")
@@ -243,76 +320,81 @@ export default function VendorDashboard() {
       {/* Create/Edit Menu */}
       <Card id="menu-form">
         <CardHeader>
-          <CardTitle>{editMenuId ? "Edit Menu" : "Create Menu"}</CardTitle>
+          <CardTitle>
+            {editMenuId
+              ? "Edit Menu"
+              : "Create Daily Menu (All Meal Types in One Go)"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleMenuSubmit} className="space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Date *
-                </label>
-                <input
-                  type="date"
-                  value={menuForm.date}
-                  onChange={(e) =>
-                    setMenuForm({ ...menuForm, date: e.target.value })
-                  }
-                  required
-                  className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
-                  disabled={isCreatingMenu}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Meal Type *
-                </label>
-                <select
-                  value={menuForm.mealType}
-                  onChange={(e) =>
-                    setMenuForm({ ...menuForm, mealType: e.target.value })
-                  }
-                  required
-                  className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
-                  disabled={isCreatingMenu}
-                >
-                  <option value="">Select Meal</option>
-                  {["BREAKFAST", "LUNCH", "DINNER", "SNACK"].map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Items (comma-separated) *
+                Date *
               </label>
               <input
-                value={menuForm.items}
-                onChange={(e) =>
-                  setMenuForm({ ...menuForm, items: e.target.value })
-                }
+                type="date"
+                value={menuDate}
+                onChange={(e) => setMenuDate(e.target.value)}
                 required
-                placeholder="e.g., Roti, Rice, Dal"
                 className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
                 disabled={isCreatingMenu}
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Notes
-              </label>
-              <input
-                value={menuForm.notes}
-                onChange={(e) =>
-                  setMenuForm({ ...menuForm, notes: e.target.value })
-                }
-                placeholder="Additional notes"
-                className="w-full rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold min-h-[100px]"
-                disabled={isCreatingMenu}
-              />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {(["BREAKFAST", "LUNCH", "DINNER", "SNACK"] as const).map(
+                (meal) => (
+                  <div
+                    key={meal}
+                    className="p-4 border border-gray-200 rounded-xl bg-muted/30 space-y-3"
+                  >
+                    <h3 className="text-sm font-semibold text-gray-800">
+                      {meal}
+                    </h3>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600">
+                        Items (comma-separated)
+                      </label>
+                      <input
+                        value={menuItemsByMeal[meal].items}
+                        onChange={(e) =>
+                          setMenuItemsByMeal((prev) => ({
+                            ...prev,
+                            [meal]: {
+                              ...prev[meal],
+                              items: e.target.value,
+                            },
+                          }))
+                        }
+                        placeholder="e.g., Roti, Rice, Dal"
+                        className="w-full rounded-md border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
+                        disabled={isCreatingMenu}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600">
+                        Notes
+                      </label>
+                      <input
+                        value={menuItemsByMeal[meal].notes}
+                        onChange={(e) =>
+                          setMenuItemsByMeal((prev) => ({
+                            ...prev,
+                            [meal]: {
+                              ...prev[meal],
+                              notes: e.target.value,
+                            },
+                          }))
+                        }
+                        placeholder="Additional notes"
+                        className="w-full rounded-md border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
+                        disabled={isCreatingMenu}
+                      />
+                    </div>
+                  </div>
+                )
+              )}
             </div>
             <div className="flex justify-end gap-4">
               {editMenuId && (
@@ -320,11 +402,12 @@ export default function VendorDashboard() {
                   type="button"
                   onClick={() => {
                     setEditMenuId(null);
-                    setMenuForm({
-                      mealType: "",
-                      date: "",
-                      items: "",
-                      notes: "",
+                    setMenuDate("");
+                    setMenuItemsByMeal({
+                      BREAKFAST: { items: "", notes: "" },
+                      LUNCH: { items: "", notes: "" },
+                      DINNER: { items: "", notes: "" },
+                      SNACK: { items: "", notes: "" },
                     });
                   }}
                   disabled={isCreatingMenu}
@@ -342,7 +425,7 @@ export default function VendorDashboard() {
                   ? "Saving..."
                   : editMenuId
                   ? "Update Menu"
-                  : "Create Menu"}
+                  : "Create Daily Menu"}
               </button>
             </div>
           </form>
@@ -510,34 +593,29 @@ export default function VendorDashboard() {
         <CardContent>
           {isSkipsLoading ? (
             <p className="text-sm text-gray-500">Loading meal skips...</p>
-          ) : !skipsData?.skips.length ? (
-            <p className="text-sm text-gray-500">No meal skips for tomorrow</p>
+          ) : !skipsData ? (
+            <p className="text-sm text-gray-500">No meal skip data</p>
           ) : (
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                {Object.entries(
-                  skipsData.skips.reduce((acc, skip) => {
-                    acc[skip.mealType] = (acc[skip.mealType] || 0) + 1;
-                    return acc;
-                  }, {} as Record<string, number>)
-                ).map(([mealType, count]) => (
-                  <div key={mealType} className="p-3 bg-muted/30 rounded-lg">
-                    <p className="text-sm font-medium">
-                      {mealType}: <span className="text-green">{count}</span>{" "}
-                    </p>
-                  </div>
-                ))}
+              <p className="text-xs text-gray-500">
+                For date: {skipsData.date}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                {(["BREAKFAST", "LUNCH", "DINNER", "SNACK"] as const).map(
+                  (meal) => (
+                    <Card key={meal} className="bg-muted/30">
+                      <CardContent className="p-4 sm:p-6 text-center">
+                        <h3 className="text-sm text-muted-foreground mb-2">
+                          {meal}
+                        </h3>
+                        <p className="text-2xl sm:text-3xl font-bold">
+                          {skipsData.counts[meal] ?? 0}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )
+                )}
               </div>
-              {/* <Card key={skip.id} className="bg-muted/20">
-                  <CardContent className="p-4 sm:p-6">
-                    <p className="text-sm font-medium text-gray-700">
-                      {skip.student.firstName} {skip.student.lastName} ({skip.student.email})
-                    </p>
-                    <p className="text-sm text-gray-500">Date: {new Date(skip.date).toLocaleDateString()}</p>
-                  </CardContent>
-                </Card> */}
-
-              {/* ))} */}
             </div>
           )}
         </CardContent>

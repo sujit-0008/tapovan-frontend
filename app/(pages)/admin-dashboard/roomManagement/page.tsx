@@ -2,9 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { useRooms } from '../../../hooks/useRooms';
-import { useAvailableRooms } from '../../../hooks/useAvailableRooms';
+
 import { useRoomOccupancyReport } from '../../../hooks/useRoomOccupancyReport';
-import { useCreateRoom } from '../../../hooks/useCreateRoom';
 import { useDeleteRoom } from '../../../hooks/useDeleteRoom';
 import { useState } from 'react';
 import { Search, Plus, Trash2, Users, Edit } from 'lucide-react';
@@ -15,9 +14,9 @@ import RoomOccupantsModal from '../../../components/RoomOccupantsModal';
 
 export default function RoomManagement() {
   const [search, setSearch] = useState('');
-  const [building, setBuilding] = useState('');
+  
   const [floor, setFloor] = useState<number | ''>('');
-  const [wing, setWing] = useState('');
+  
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -27,7 +26,7 @@ export default function RoomManagement() {
   const [viewMode, setViewMode] = useState<'list' | 'occupancy'>('list');
 
   const { data: roomsData, isLoading: roomsLoading, error: roomsError } = useRooms({
-    building: building || undefined,
+  
     floor: floor ? Number(floor) : undefined,
   });
 
