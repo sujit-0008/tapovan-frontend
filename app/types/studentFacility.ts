@@ -81,6 +81,8 @@ export interface Ticket {
   severity?: string | null;
   photoUrl?: string | null;
   roomNumber?: string | null;
+  closureNote?: string | null;
+  status?: string;
   raisedById: number;
   createdAt: string;
 }
@@ -96,6 +98,10 @@ export interface CreateTicketRequest {
 export interface CreateTicketResponse {
   message: string;
   ticket: Ticket;
+}
+
+export interface GetRoomTicketsResponse {
+  tickets: Ticket[];
 }
 
 export interface GetFacilitiesResponse {

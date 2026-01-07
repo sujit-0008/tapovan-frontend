@@ -1,8 +1,6 @@
 import api from './api';
 import { API_ROUTES } from '../constants/api';
-import { MealCheckinRequest, MealCheckinResponse, SkipMealRequest, SkipMealResponse, CreateBookingRequest, CreateBookingResponse, CreateSOSAlertRequest, CreateSOSAlertResponse, CreateTicketRequest, CreateTicketResponse, GetFacilitiesResponse, GetBookingsResponse 
-
-} from '../types/studentFacility';
+import { MealCheckinRequest, MealCheckinResponse, SkipMealRequest, SkipMealResponse, CreateBookingRequest, CreateBookingResponse, CreateSOSAlertRequest, CreateSOSAlertResponse, CreateTicketRequest, CreateTicketResponse, GetFacilitiesResponse, GetBookingsResponse, GetRoomTicketsResponse } from '../types/studentFacility';
 
 export const mealCheckin = async (data: MealCheckinRequest): Promise<MealCheckinResponse> => {
   const response = await api.get<MealCheckinResponse>(API_ROUTES.STUDENT.MEAL_CHECKIN, { params: data });
@@ -54,5 +52,10 @@ export const getFacilities = async (): Promise<GetFacilitiesResponse> => {
 
 export const getBookings = async (): Promise<GetBookingsResponse> => {
   const response = await api.get<GetBookingsResponse>(API_ROUTES.STUDENT.GET_BOOKINGS);
+  return response.data;
+};
+
+export const getRoomTickets = async (): Promise<GetRoomTicketsResponse> => {
+  const response = await api.get<GetRoomTicketsResponse>(API_ROUTES.STUDENT.ROOM_TICKETS);
   return response.data;
 };

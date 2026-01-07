@@ -20,6 +20,7 @@ export const API_ROUTES = {
     CREATE_BOOKING: '/api/student/bookings/create', // New
     CREATE_SOS_ALERT: '/api/student/sos/create', // New
     CREATE_TICKET: '/api/student/tickets/create', // New
+    ROOM_TICKETS: '/api/student/tickets/room', // New
 
     GET_FACILITIES: '/api/student/facilities', // New (assumed)
     GET_BOOKINGS: '/api/student/bookings', // New (assumed)

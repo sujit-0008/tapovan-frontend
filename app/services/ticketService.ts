@@ -24,11 +24,12 @@ export const updateTicketStatus = async (
   id: string,
   status: 'PENDING' | 'IN_PROGRESS' | 'CLOSED',
   assignedToAdminId?: number,
-  assignedToVendorId?: number
+  assignedToVendorId?: number,
+  note?: string
 ) => {
   const response = await api.post(
     API_ROUTES.TICKET.UPDATE.replace(':id', id),
-    { status, assignedToAdminId, assignedToVendorId }
+    { status, assignedToAdminId, assignedToVendorId, note }
   );
   return response.data;
 };
@@ -60,11 +61,12 @@ export const getMyTicketDetails = async (id: string): Promise<{ ticket: StaffTic
 
 export const updateMyTicketStatus = async (
   id: string,
-  status: 'PENDING' | 'IN_PROGRESS' | 'CLOSED'
+  status: 'PENDING' | 'IN_PROGRESS' | 'CLOSED',
+  note?: string
 ): Promise<any> => {
   const response = await api.post(
     API_ROUTES.TICKET.STAFF_UPDATE_STATUS.replace(':id', id),
-    { status }
+    { status, note }
   );
   return response.data;
 };
@@ -83,11 +85,11 @@ export const getSkillsForCategory = async (): Promise<{ skillMapping: SkillMappi
 
 export const reassignTicketBySkills = async (
   ticketId: string,
-  staffId: number
+  reason?: string
 ): Promise<ReassignTicketResponse> => {
   const response = await api.post<ReassignTicketResponse>(
     API_ROUTES.TICKET.REASSIGN_TICKET.replace(':ticketId', ticketId),
-    { staffId }
+    { reason }
   );
   return response.data;
 };

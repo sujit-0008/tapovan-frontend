@@ -18,11 +18,19 @@ const StaffDashboard = () => {
   const { data, isLoading } = useStaffTickets(statusFilter, page);
   const { data: details, isLoading: loadingDetails } = useStaffTicketDetails(selectedId ? String(selectedId) : undefined);
   const updateMutation = useUpdateMyTicketStatus();
+  const [closeNote, setCloseNote] = useState<string>('');
+  const [showCloseModal, setShowCloseModal] = useState<boolean>(false);
 
   const tickets = data?.tickets || [];
   const totalPages = data?.pages || 1;
 
   const handleStatusChange = async (id: number, next: TicketStatus) => {
+    if (next === 'CLOSED') {
+      setSelectedId(id);
+      setCloseNote('');
+      setShowCloseModal(true);
+      return;
+    }
     await updateMutation.mutateAsync({ id: String(id), status: next });
   };
 
@@ -74,16 +82,16 @@ const StaffDashboard = () => {
                     </div>
                     <div className="text-gray-600 mt-1 line-clamp-2">{t.description}</div>
                     <div className="mt-2 flex gap-2">
-                      {nextActions(t.status as TicketStatus).map((n) => (
-                        <button
-                          key={n}
-                          onClick={(e) => { e.stopPropagation(); handleStatusChange(t.id, n); }}
-                          className="px-3 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-                          disabled={updateMutation.isPending}
-                        >
-                          Mark {n.replace('_', ' ')}
-                        </button>
-                      ))}
+                    {nextActions(t.status as TicketStatus).map((n) => (
+                      <button
+                        key={n}
+                        onClick={(e) => { e.stopPropagation(); handleStatusChange(t.id, n); }}
+                        className="px-3 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                        disabled={updateMutation.isPending}
+                      >
+                        Mark {n.replace('_', ' ')}
+                      </button>
+                    ))}
                     </div>
                   </div>
                 ))
@@ -163,6 +171,42 @@ const StaffDashboard = () => {
           </div>
         </aside>
       </div>
+      {showCloseModal && selectedId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow p-6 w-full max-w-md">
+            <div className="text-lg font-semibold mb-3">Add closing note</div>
+            <textarea
+              className="w-full border rounded p-2 h-28"
+              value={closeNote}
+              onChange={(e) => setCloseNote(e.target.value)}
+              placeholder="Describe what was done to resolve the ticket"
+            />
+            <div className="mt-4 flex justify-end gap-3">
+              <button
+                className="px-3 py-2 border rounded"
+                onClick={() => { setShowCloseModal(false); setCloseNote(''); }}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-3 py-2 rounded bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+                disabled={updateMutation.isPending}
+                onClick={async () => {
+                  if (!closeNote.trim()) {
+                    alert('Closing note is required.');
+                    return;
+                  }
+                  await updateMutation.mutateAsync({ id: String(selectedId), status: 'CLOSED', note: closeNote });
+                  setShowCloseModal(false);
+                  setCloseNote('');
+                }}
+              >
+                {updateMutation.isPending ? 'Saving...' : 'Close Ticket'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

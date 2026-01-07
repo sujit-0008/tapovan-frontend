@@ -20,7 +20,7 @@ export const useStaffTicketDetails = (id?: string) => {
 export const useUpdateMyTicketStatus = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: TicketStatus }) => updateMyTicketStatus(id, status),
+    mutationFn: ({ id, status, note }: { id: string; status: TicketStatus; note?: string }) => updateMyTicketStatus(id, status, note),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['staff-tickets'] });
       qc.invalidateQueries({ queryKey: ['staff-ticket'] });

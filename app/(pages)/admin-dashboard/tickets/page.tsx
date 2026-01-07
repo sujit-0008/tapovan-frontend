@@ -23,6 +23,7 @@ export default function TicketManagement() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showReassignModal, setShowReassignModal] = useState(false);
+  const [closingNote, setClosingNote] = useState('');
   const [searchSkills, setSearchSkills] = useState('');
   const [selectedStaffId, setSelectedStaffId] = useState('');
   const [reassignReason, setReassignReason] = useState('');
@@ -64,6 +65,7 @@ export default function TicketManagement() {
 
   const handleStatusChange = (ticket: any): void => {
     setSelectedTicket(ticket);
+    setClosingNote('');
     setShowStatusModal(true);
   };
 
@@ -92,12 +94,17 @@ export default function TicketManagement() {
 
   const confirmStatus = (newStatus: 'IN_PROGRESS' | 'CLOSED') => {
     if (!selectedTicket) return;
+    if (newStatus === 'CLOSED' && !closingNote.trim()) {
+      alert('Please add a closing note.');
+      return;
+    }
     statusMutation.mutate(
-      { id: selectedTicket.id.toString(), status: newStatus },
+      { id: selectedTicket.id.toString(), status: newStatus, note: newStatus === 'CLOSED' ? closingNote : undefined },
       {
         onSuccess: () => {
           setShowStatusModal(false);
           setSelectedTicket(null);
+          setClosingNote('');
         },
       }
     );
@@ -122,7 +129,19 @@ export default function TicketManagement() {
 
   const handleCloseTicket = (ticket: any) => {
     setSelectedTicket(ticket);
-    confirmStatus('CLOSED');
+    setClosingNote('');
+    setShowStatusModal(true);
+  };
+
+  const handleReopen = (ticket: any) => {
+    statusMutation.mutate(
+      { id: ticket.id.toString(), status: 'PENDING' },
+      {
+        onSuccess: () => {
+          setSelectedTicket(null);
+        },
+      }
+    );
   };
 
   return (
@@ -209,6 +228,7 @@ export default function TicketManagement() {
                     <th className="text-left py-3 px-4">Category</th>
                     <th className="text-left py-3 px-4">Status</th>
                     <th className="text-left py-3 px-4">Assigned To</th>
+                    <th className="text-left py-3 px-4">Closure Note</th>
                     <th className="text-left py-3 px-4">Actions</th>
                   </tr>
                 </thead>
@@ -231,9 +251,15 @@ export default function TicketManagement() {
                       </td>
                       <td className="py-3 px-4 text-sm">
                         {ticket.assignedToAdminId
-                          ? `Staff id: ${ticket.assignedToAdminId}`
+                          ? `Staff : ${ticket.assignedToAdmin
+                            ? ticket.assignedToAdmin.name
+                            : 'Unassigned'
+                        }`
                           : 'Unassigned'}
                       </td>
+                      <td className="py-3 px-4 text-sm">
+                        {ticket.closureNote ? ticket.closureNote : 'N/A'}
+                        </td>
                       <td className="py-3 px-4">
                         <div className="flex gap-2 flex-wrap">
                           {ticket.status === 'PENDING' && (
@@ -269,6 +295,11 @@ export default function TicketManagement() {
                                 Reassign
                               </Button>
                             </>
+                          )}
+                          {ticket.status === 'CLOSED' && (
+                            <Button variant="outline" onClick={() => handleReopen(ticket)}>
+                              Reopen
+                            </Button>
                           )}
                         </div>
                       </td>
@@ -396,6 +427,16 @@ export default function TicketManagement() {
                 Current status:{' '}
                 <strong>{selectedTicket.status.replace('_', ' ')}</strong>
               </p>
+              {selectedTicket.status === 'IN_PROGRESS' && (
+                <div>
+                  <label className="block text-sm font-medium mb-2">Closing Note *</label>
+                  <Input
+                    value={closingNote}
+                    onChange={(e) => setClosingNote(e.target.value)}
+                    placeholder="Add a note before closing"
+                  />
+                </div>
+              )}
               <div className="flex flex-col gap-3">
                 {selectedTicket.status === 'PENDING' && (
                   <Button onClick={() => confirmStatus('IN_PROGRESS')}>
@@ -414,7 +455,10 @@ export default function TicketManagement() {
 
                 <Button
                   variant="outline"
-                  onClick={() => setShowStatusModal(false)}
+                  onClick={() => {
+                    setShowStatusModal(false);
+                    setClosingNote('');
+                  }}
                 >
                   Cancel
                 </Button>

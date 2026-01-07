@@ -9,6 +9,7 @@ export interface Ticket {
   photoUrl?: string | null;
   roomNumber?: string | null;
   status: 'PENDING' | 'IN_PROGRESS' | 'CLOSED';
+  closureNote?: string | null;
   assignedToAdminId?: number | null;
   assignedToVendorId?: number | null;
 
@@ -74,8 +75,6 @@ export interface SkillMapping {
   [category: string]: string[];
 }
 export interface ReassignTicketPayload {
-  
-  staffId: number;
   reason?: string;
 }
 

@@ -1,6 +1,6 @@
-import { useMutation } from '@tanstack/react-query';
-import { createTicket } from '../services/studentFacilityService';
-import { CreateTicketRequest, CreateTicketResponse } from '../types/studentFacility';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { createTicket, getRoomTickets } from '../services/studentFacilityService';
+import { CreateTicketRequest, CreateTicketResponse, GetRoomTicketsResponse } from '../types/studentFacility';
 
 export const useCreateTicket = () => {
   return useMutation<CreateTicketResponse, Error, CreateTicketRequest | { data: CreateTicketRequest; file?: File }>({
@@ -15,5 +15,12 @@ export const useCreateTicket = () => {
     onError: (error) => {
       console.error('Create ticket error:', error.message);
     },
+  });
+};
+
+export const useRoomTickets = () => {
+  return useQuery<GetRoomTicketsResponse, Error>({
+    queryKey: ['room-tickets'],
+    queryFn: getRoomTickets,
   });
 };

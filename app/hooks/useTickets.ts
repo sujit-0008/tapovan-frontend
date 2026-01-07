@@ -23,7 +23,8 @@ export const useAssignTicketBySkills = () => {
 export const useUpdateTicketStatus = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (variables: { id: string; status: 'PENDING' | 'IN_PROGRESS' | 'CLOSED'; assignedToAdminId?: number; assignedToVendorId?: number }) => updateTicketStatus(variables.id, variables.status, variables.assignedToAdminId, variables.assignedToVendorId),
+    mutationFn: (variables: { id: string; status: 'PENDING' | 'IN_PROGRESS' | 'CLOSED'; assignedToAdminId?: number; assignedToVendorId?: number; note?: string }) =>
+      updateTicketStatus(variables.id, variables.status, variables.assignedToAdminId, variables.assignedToVendorId, variables.note),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['tickets'] }),
   });
 };
@@ -49,7 +50,7 @@ export const useSkillsForCategory = () => {
 export const useReassignTicketBySkills = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (variables: { ticketId: string; staffId: number }) => reassignTicketBySkills(variables.ticketId, variables.staffId),
+    mutationFn: (variables: { ticketId: string; reason?: string }) => reassignTicketBySkills(variables.ticketId, variables.reason),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['tickets'] });
     },
