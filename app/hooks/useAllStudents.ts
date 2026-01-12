@@ -6,6 +6,6 @@ export const useStudents = (params: AllStudentsQueryParams = { status: 'PENDING'
   return useQuery<AllStudentsResponse, Error>({
     queryKey: ['students', params],
     queryFn: () => getAllStudents(params),
-    //keepPreviousData: true,
+    keepPreviousData: true,
   });
 };

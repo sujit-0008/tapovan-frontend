@@ -6,6 +6,6 @@ export const useVendors = (params: AllVendorsQueryParams = { status: 'PENDING', 
   return useQuery<AllVendorsResponse, Error>({
     queryKey: ['vendors', params],
     queryFn: () => getAllVendors(params),
-    //keepPreviousData: true,
+    keepPreviousData: true,
   });
 };

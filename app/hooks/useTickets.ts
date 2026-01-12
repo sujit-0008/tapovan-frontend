@@ -6,6 +6,7 @@ export const useTickets = (status = 'PENDING', page = 1) => {
   return useQuery({
     queryKey: ['tickets', status, page],
     queryFn: () => getTickets(status, page),
+    
   });
 };
 
