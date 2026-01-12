@@ -204,10 +204,10 @@ export default function VendorDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
           Food Vendor Dashboard
-        </h1>
+        </h1> 
         <div className="flex gap-4">
           <button
-            onClick={() => router.push(`/admin-dashboard/vendors/${vendorId}`)}
+            onClick={() => router.push(`/foodVendorDashboard/profile/${vendorId}`)}
             className="px-4 py-2 rounded-xl bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
           >
             Profile
