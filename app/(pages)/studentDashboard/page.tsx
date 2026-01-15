@@ -28,7 +28,10 @@ export default function StudentDashboard() {
   const { data: facilitiesData, isLoading: isFacilitiesLoading } = useFacilities();
   const { data: bookingsData, isLoading: isBookingsLoading } = useBookings();
 
-  const [mealSkip, setMealSkip] = useState({ mealType: '', date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0] });
+  const [mealSkip, setMealSkip] = useState({ 
+    mealTypes: [] as string[], 
+    date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0] 
+  });
   const [bookingForm, setBookingForm] = useState({ facilityId: '', slotStart: '', slotEnd: '' });
   const [ticketForm, setTicketForm] = useState({ category: '', description: '', severity: '', roomNumber: '' });
 
@@ -41,13 +44,26 @@ export default function StudentDashboard() {
 
   const handleSkipMeal = (e: React.FormEvent) => {
     e.preventDefault();
-    skipMeal({ ...mealSkip, mealType: mealSkip.mealType as 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK' | 'ALL' }, {
+    if (mealSkip.mealTypes.length === 0) {
+      alert('Please select at least one meal type');
+      return;
+    }
+    skipMeal({ mealTypes: mealSkip.mealTypes, date: mealSkip.date }, {
       onSuccess: () => {
         alert('Meal skip recorded');
-        setMealSkip({ ...mealSkip, mealType: '' });
+        setMealSkip({ mealTypes: [], date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0] });
       },
       onError: (error) => alert(error.message || 'Failed to skip meal'),
     });
+  };
+
+  const handleMealTypeToggle = (mealType: string) => {
+    setMealSkip(prev => ({
+      ...prev,
+      mealTypes: prev.mealTypes.includes(mealType)
+        ? prev.mealTypes.filter(m => m !== mealType)
+        : [...prev.mealTypes, mealType]
+    }));
   };
 
   const handleBookingSubmit = (e: React.FormEvent) => {
@@ -148,34 +164,37 @@ export default function StudentDashboard() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSkipMeal} className="space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Date</label>
-                <Input
-                  type="date"
-                  value={mealSkip.date}
-                  readOnly
-                  className="rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Meal Type *</label>
-                <Select
-                  value={mealSkip.mealType}
-                  onChange={(e) => setMealSkip({ ...mealSkip, mealType: e.target.value })}
-                  required
-                  className="rounded-xl"
-                  disabled={isSkipping}
-                >
-                  <option value="">Select Meal</option>
-                  {['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK', 'ALL'].map((type) => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </Select>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Date</label>
+              <Input
+                type="date"
+                value={mealSkip.date}
+                readOnly
+                className="rounded-xl"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Select Meals to Skip *</label>
+              <div className="space-y-3">
+                {['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'].map((type) => (
+                  <div key={type} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={`meal-${type}`}
+                      checked={mealSkip.mealTypes.includes(type)}
+                      onChange={() => handleMealTypeToggle(type)}
+                      disabled={isSkipping}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded cursor-pointer"
+                    />
+                    <label htmlFor={`meal-${type}`} className="ml-3 text-sm font-medium text-gray-700 cursor-pointer">
+                      {type}
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
-            <Button type="submit" disabled={isSkipping}>
-              {isSkipping ? 'Skipping...' : 'Skip Meal'}
+            <Button type="submit" disabled={isSkipping || mealSkip.mealTypes.length === 0}>
+              {isSkipping ? 'Skipping...' : 'Skip Selected Meals'}
             </Button>
           </form>
         </CardContent>
