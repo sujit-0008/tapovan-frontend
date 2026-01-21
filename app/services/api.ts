@@ -14,18 +14,51 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Enhanced error message extraction
+    let errorMessage = 'An unexpected error occurred';
+
+    if (error.response?.data) {
+      const { data } = error.response;
+
+      // Handle different error response formats
+      if (data.errors && Array.isArray(data.errors)) {
+        errorMessage = data.errors.join(', ');
+      } else if (data.message) {
+        errorMessage = data.message;
+      } else if (data.error) {
+        errorMessage = data.error;
+      } else if (typeof data === 'string') {
+        errorMessage = data;
+      }
+    } else if (error.message) {
+      errorMessage = error.message;
+    } else if (error.request) {
+      errorMessage = 'Network error - please check your connection';
+    }
+
+    // Create enhanced error object
+    const enhancedError = {
+      ...error,
+      message: errorMessage,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      originalMessage: error.message,
+    };
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      try { // Destructure userType from the 'data' property of the response
+      try {
         const { data: { userType } } = await api.post(API_ROUTES.AUTH.REFRESH);
         useAuthStore.getState().setUser(userType as UserRole);
         return api(originalRequest);
       } catch (refreshError) {
         window.location.href = '/login';
-        return Promise.reject(refreshError);
+        return Promise.reject(enhancedError);
       }
     }
-    return Promise.reject(error);
+
+    return Promise.reject(enhancedError);
   }
 );
 

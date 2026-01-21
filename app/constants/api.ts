@@ -104,5 +104,20 @@ export const API_ROUTES = {
     UPDATE: '/api/admin/common-message/:id',
     DELETE: '/api/admin/common-message/:id',
     ACTIVE: '/api/admin/common-message/active',
-  }
+  },
+  LEAVE: {
+    STUDENT: {
+      CREATE: '/api/student/leave/create',
+      UPDATE: '/api/student/leave/:id',
+      MY_LEAVES: '/api/student/leaves',
+    },
+    ADMIN: {
+      LIST: '/api/admin/leaves',
+      UPDATE_STATUS: '/api/admin/leave/:id/status',
+      ABSENT_TODAY: '/api/admin/leave/absent-today',
+    },
+    VENDOR: {
+      ABSENT_TODAY: '/api/leave/absent-today',
+    },
+  },
 } as const;

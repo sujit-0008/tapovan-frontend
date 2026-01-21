@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { useNotifications } from '../../hooks/useAdminNotifications';
+import { useTodayAbsentCount } from '../../hooks/useLeave';
 import { useState } from 'react';
 import Link from 'next/link';
 import { Notification } from '@/app/types/adminNotification';
@@ -9,6 +10,7 @@ export default function AdminNotifications() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<'PENDING' | 'RESOLVED'>('PENDING');
   const { data, isLoading, error } = useNotifications({ status, search });
+  const { data: absentData } = useTodayAbsentCount();
 
   const getTypeStyle = (action: string) => {
     switch (action) {
@@ -45,7 +47,24 @@ export default function AdminNotifications() {
   return (
     <div className="p-4 sm:p-6 space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold">Admin Notifications</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">Admin Dashboard</h1>
+      </div>
+
+      {/* Today's Absent Count */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Today's Absent Students</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold text-red-600">
+            {absentData?.absentCount || 0}
+          </div>
+          <p className="text-sm text-gray-600">Students on approved leave today</p>
+        </CardContent>
+      </Card>
+
+      <div>
+        <h2 className="text-xl font-semibold">Notifications</h2>
       </div>
 
       <Card>

@@ -14,7 +14,9 @@ import { useCreateSOSAlert } from '../../hooks/useCreateSOSAlert';
 import { useCreateTicket, useRoomTickets } from '../../hooks/useCreateTicket';
 import { useFacilities } from '../../hooks/useFacilities';
 import { useBookings } from '../../hooks/useBookings';
+import { useCreateLeave, useUpdateLeave, useMyLeaves } from '../../hooks/useLeave';
 import { useAuthStore } from '../../store/authStore';
+import { getErrorMessage } from '../../utils/errorUtils';
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -27,6 +29,9 @@ export default function StudentDashboard() {
   const { data: roomTicketsData } = useRoomTickets();
   const { data: facilitiesData, isLoading: isFacilitiesLoading } = useFacilities();
   const { data: bookingsData, isLoading: isBookingsLoading } = useBookings();
+  const { mutate: createLeaveReq, isPending: isCreatingLeave } = useCreateLeave();
+  const { mutate: updateLeaveReq, isPending: isUpdatingLeave } = useUpdateLeave();
+  const { data: myLeavesData, isLoading: isLeavesLoading } = useMyLeaves();
 
   const [mealSkip, setMealSkip] = useState({ 
     mealTypes: [] as string[], 
@@ -34,6 +39,8 @@ export default function StudentDashboard() {
   });
   const [bookingForm, setBookingForm] = useState({ facilityId: '', slotStart: '', slotEnd: '' });
   const [ticketForm, setTicketForm] = useState({ category: '', description: '', severity: '', roomNumber: '' });
+  const [leaveForm, setLeaveForm] = useState({ startDate: '', endDate: '', reason: '' });
+  const [editingLeave, setEditingLeave] = useState<{ id: string; startDate: string; endDate: string; reason: string } | null>(null);
 
   const handleMealCheckin = (qrData: string) => {
     checkinMeal({ data: qrData }, {
@@ -53,7 +60,10 @@ export default function StudentDashboard() {
         alert('Meal skip recorded');
         setMealSkip({ mealTypes: [], date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0] });
       },
-      onError: (error) => alert(error.message || 'Failed to skip meal'),
+      onError: (error) => {
+        const errorMessage = getErrorMessage(error);
+        alert(`Failed to skip meal: ${errorMessage}`);
+      },
     });
   };
 
@@ -79,7 +89,10 @@ export default function StudentDashboard() {
           alert('Booking created successfully');
           setBookingForm({ facilityId: '', slotStart: '', slotEnd: '' });
         },
-        onError: (error) => alert(error.message || 'Failed to create booking'),
+        onError: (error) => {
+          const errorMessage = getErrorMessage(error);
+          alert(`Failed to create booking: ${errorMessage}`);
+        },
       }
     );
   };
@@ -92,7 +105,10 @@ export default function StudentDashboard() {
             { latitude: position.coords.latitude, longitude: position.coords.longitude },
             {
               onSuccess: () => alert('SOS alert sent successfully'),
-              onError: (error) => alert(error.message || 'Failed to send SOS alert'),
+              onError: (error) => {
+                const errorMessage = getErrorMessage(error);
+                alert(`Failed to send SOS alert: ${errorMessage}`);
+              },
             }
           );
         },
@@ -112,9 +128,56 @@ export default function StudentDashboard() {
           alert('Ticket created successfully');
           setTicketForm({ category: '', description: '', severity: '', roomNumber: ''});
         },
-        onError: (error) => alert(error.message || 'Failed to create ticket'),
+        onError: (error) => {
+          const errorMessage = getErrorMessage(error);
+          alert(`Failed to create ticket: ${errorMessage}`);
+        },
       }
     );
+  };
+
+  const handleLeaveSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingLeave) {
+      updateLeaveReq(
+        { id: editingLeave.id, data: { startDate: leaveForm.startDate, endDate: leaveForm.endDate, reason: leaveForm.reason } },
+        {
+          onSuccess: () => {
+            alert('Leave updated successfully');
+            setLeaveForm({ startDate: '', endDate: '', reason: '' });
+            setEditingLeave(null);
+          },
+          onError: (error) => {
+            const errorMessage = getErrorMessage(error);
+            alert(`Failed to update leave: ${errorMessage}`);
+          },
+        }
+      );
+    } else {
+      createLeaveReq(
+        { startDate: leaveForm.startDate, endDate: leaveForm.endDate, reason: leaveForm.reason },
+        {
+          onSuccess: () => {
+            alert('Leave request created successfully');
+            setLeaveForm({ startDate: '', endDate: '', reason: '' });
+          },
+          onError: (error) => {
+            const errorMessage = getErrorMessage(error);
+            alert(`Failed to create leave request: ${errorMessage}`);
+          },
+        }
+      );
+    }
+  };
+
+  const handleEditLeave = (leave: any) => {
+    setEditingLeave({ id: leave.id.toString(), startDate: leave.startDate.split('T')[0], endDate: leave.endDate.split('T')[0], reason: leave.reason });
+    setLeaveForm({ startDate: leave.startDate.split('T')[0], endDate: leave.endDate.split('T')[0], reason: leave.reason });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingLeave(null);
+    setLeaveForm({ startDate: '', endDate: '', reason: '' });
   };
 
   return (
@@ -125,9 +188,9 @@ export default function StudentDashboard() {
           <Button variant="outline" onClick={() => router.push(`/studentDashboard/profile/${user?.id}`)}>
             Profile
           </Button>
-          <Button variant="outline" onClick={logout}>
+          {/* <Button variant="outline" onClick={logout}>
             Logout
-          </Button>
+          </Button> */}
         </div>
       </div>
 
@@ -316,6 +379,112 @@ export default function StudentDashboard() {
               {isCreatingTicket ? 'Creating...' : 'Create Ticket'}
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Leave Request */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{editingLeave ? 'Edit Leave Request' : 'Request Leave'}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLeaveSubmit} className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Start Date *</label>
+                <Input
+                  type="date"
+                  value={leaveForm.startDate}
+                  onChange={(e) => setLeaveForm({ ...leaveForm, startDate: e.target.value })}
+                  required
+                  className="rounded-xl"
+                  disabled={isCreatingLeave || isUpdatingLeave}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">End Date *</label>
+                <Input
+                  type="date"
+                  value={leaveForm.endDate}
+                  onChange={(e) => setLeaveForm({ ...leaveForm, endDate: e.target.value })}
+                  required
+                  className="rounded-xl"
+                  disabled={isCreatingLeave || isUpdatingLeave}
+                  min={leaveForm.startDate || new Date().toISOString().split('T')[0]}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Reason *</label>
+              <Input
+                value={leaveForm.reason}
+                onChange={(e) => setLeaveForm({ ...leaveForm, reason: e.target.value })}
+                required
+                className="rounded-xl"
+                disabled={isCreatingLeave || isUpdatingLeave}
+                placeholder="Reason for leave"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={isCreatingLeave || isUpdatingLeave}>
+                {isCreatingLeave || isUpdatingLeave ? 'Submitting...' : editingLeave ? 'Update Leave' : 'Request Leave'}
+              </Button>
+              {editingLeave && (
+                <Button type="button" variant="outline" onClick={handleCancelEdit}>
+                  Cancel
+                </Button>
+              )}
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* My Leave Requests */}
+      <Card>
+        <CardHeader>
+          <CardTitle>My Leave Requests</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLeavesLoading ? (
+            <p className="text-sm text-gray-500">Loading leaves...</p>
+          ) : !myLeavesData?.length ? (
+            <p className="text-sm text-gray-500">No leave requests found</p>
+          ) : (
+            <div className="space-y-3">
+              {myLeavesData.map((leave) => (
+                <div key={leave.id} className="border rounded-lg p-3">
+                  <div className="flex justify-between items-center">
+                    <div className="font-semibold">
+                      {new Date(leave.startDate).toLocaleDateString()} - {new Date(leave.endDate).toLocaleDateString()}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs px-2 py-1 rounded ${
+                        leave.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                        leave.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {leave.status}
+                      </span>
+                      {leave.status === 'PENDING' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditLeave(leave)}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-700 mt-1">{leave.reason}</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Requested on {new Date(leave.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 

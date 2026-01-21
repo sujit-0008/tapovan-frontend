@@ -19,6 +19,7 @@ import { useFoodMenus } from "../../hooks/useFoodMenus";
 import { useVendorDetails } from "../../hooks/useVendorDetails";
 import { useMealScanCounts } from "../../hooks/useMealScanCounts";
 import { useAuthStore } from "../../store/authStore";
+import { useTodayAbsentCountVendor } from "../../hooks/useLeave";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function VendorDashboard() {
@@ -59,6 +60,7 @@ export default function VendorDashboard() {
 
   const { data: mealScanCountsData, isLoading: isMealScanCountsLoading } =
     useMealScanCounts({ date: today });
+  const { data: absentData } = useTodayAbsentCountVendor();
   console.log(mealScanCountsData);
   if (isVendorLoading)
     return <p className="p-4 sm:p-6 text-gray-500 text-sm">Loading...</p>;
@@ -212,14 +214,27 @@ export default function VendorDashboard() {
           >
             Profile
           </button>
-          <button
+          {/* <button
             onClick={() => useAuthStore.getState().logout()}
             className="px-4 py-2 rounded-xl bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
           >
             Logout
-          </button>
+          </button> */}
         </div>
       </div>
+
+      {/* Today's Absent Count */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Today's Absent Students</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold text-red-600">
+            {absentData?.absentCount || 0}
+          </div>
+          <p className="text-sm text-gray-600">Students on approved leave today</p>
+        </CardContent>
+      </Card>
 
       {/* Generate QR Code */}
       <Card>

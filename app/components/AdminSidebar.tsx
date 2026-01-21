@@ -11,7 +11,7 @@ import {
   Heart,
   Truck,
   Star,
- 
+  Calendar,
 } from "lucide-react";
 
 
@@ -28,6 +28,7 @@ export const AdminSidebar = () => {
   { path: "/admin-dashboard/roomManagement", label: "Room Management", icon: Star },
   { path: "/admin-dashboard/tickets", label: "Tickets", icon: Star },
   { path: "/admin-dashboard/commonMsg", label: "Common Message", icon: Star },
+  { path: "/admin-dashboard/leaves", label: "Leave Management", icon: Calendar },
 
 ];
 
