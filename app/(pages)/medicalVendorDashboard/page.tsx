@@ -10,6 +10,16 @@ import { useSearchStudents, useMedicalHistory ,useAddCheckup  } from '../../hook
 import { Search, FileText, PlusCircle } from 'lucide-react';
 
 export default function DoctorDashboard() {
+  // Deterministic UTC date formatter to avoid SSR/CSR hydration differences
+  const formatUTCDate = (input: string | number | Date | undefined | null) => {
+    if (!input) return 'Unknown date';
+    const d = input instanceof Date ? input : new Date(input as any);
+    if (!d || Number.isNaN(d.getTime())) return 'Unknown date';
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const year = d.getUTCFullYear();
+    return `${day}/${month}/${year}`; // deterministic, UTC-based
+  };
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [showAddCheckup, setShowAddCheckup] = useState(false);
@@ -161,14 +171,14 @@ export default function DoctorDashboard() {
                   <p className="text-gray-500">No checkup reports yet.</p>
                 ) : (
                   <div className="space-y-4">
-                    {historyData.history.checkupReports.map((report) => (
-                      <Card key={report.id} className="bg-muted/20">
+                    {historyData.history.checkupReports.map((report, idx) => (
+                          <Card key={report.id ?? report._id ?? `${selectedStudentId}-${idx}`} className="bg-muted/20">
                         <CardContent className="p-4">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
-                              <p className="text-sm text-gray-500">
-                                {new Date(report.date).toLocaleDateString()} by {report.vendor.name}
-                              </p>
+                                  <p className="text-sm text-gray-500">
+                                    {formatUTCDate(report?.date)} by {report?.vendor?.name || 'Unknown vendor'}
+                                  </p>
                               <p className="mt-2"><strong>Report:</strong> {report.report}</p>
                               {report.prescription && (
                                 <p className="mt-1"><strong>Prescription:</strong> {report.prescription}</p>
