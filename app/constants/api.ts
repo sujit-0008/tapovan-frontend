@@ -51,7 +51,7 @@ export const API_ROUTES = {
     GET_MEAL_SCAN_COUNTS: '/api/meal-scan-counts', // New
 
   },
-   PARENT: {
+  PARENT: {
     GET_ATTENDANCE: '/api/parent/parentinfo', // New: Parent attendance
   },
 
@@ -63,6 +63,7 @@ export const API_ROUTES = {
     CREATE: '/api/admin/payments',
     UPDATE: '/api/admin//payments/:id',
     HISTORY: '/api/admin/payments/student/:studentId',
+    STATS: '/api/admin/payments/stats',
   },
   ROOM: {
     CREATE: '/api/admin/rooms',

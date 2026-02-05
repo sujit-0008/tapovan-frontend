@@ -181,7 +181,7 @@ export default function StudentDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 space-y-8">
+    <div className="min-h-screen bg-background p-4 sm:p-6 space-y-8 m-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Student Dashboard</h1>
         <div className="flex gap-4">

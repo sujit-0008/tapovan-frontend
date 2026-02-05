@@ -7,6 +7,7 @@ import {
   UpdatePaymentResponse,
   PaymentHistoryResponse,
   PaymentHistoryQueryParams,
+  PaymentStatsResponse,
 } from '../types/payment';
 
 export const createPayment = async (data: CreatePaymentRequest): Promise<CreatePaymentResponse> => {
@@ -27,5 +28,17 @@ export const getPaymentHistory = async (
     API_ROUTES.PAYMENT.HISTORY.replace(':studentId', studentId),
     { params }
   );
+  return response.data;
+};
+
+
+
+
+export const getPaymentStats = async (month?: number, year?: number): Promise<PaymentStatsResponse> => {
+  const queryParams = new URLSearchParams();
+  if (month) queryParams.append('month', month.toString());
+  if (year) queryParams.append('year', year.toString());
+
+  const response = await api.get<PaymentStatsResponse>(`${API_ROUTES.PAYMENT.STATS}?${queryParams.toString()}`);
   return response.data;
 };

@@ -5,6 +5,9 @@ import { API_ROUTES } from '../constants/api';
 
 
 export const getAllStudents = async (params: AllStudentsQueryParams = {}): Promise<AllStudentsResponse> => {
-  const response = await api.get<AllStudentsResponse>(API_ROUTES.STUDENT.ALL, { params });
+  const { status, search, page, yearOfAdmission } = params;
+  const response = await api.get<AllStudentsResponse>(API_ROUTES.STUDENT.ALL, {
+    params: { status, search, page, yearOfAdmission }
+  });
   return response.data;
 };

@@ -58,6 +58,17 @@ export interface PaymentHistoryQueryParams {
   page?: number;
 }
 
+export interface PaymentStats {
+  totalStudents: number;
+  paidStudents: number;
+  pendingStudents: number;
+}
+
+export interface PaymentStatsResponse {
+  month: string;
+  stats: PaymentStats;
+}
+
 export interface ErrorResponse {
   errors?: string[];
   message?: string;

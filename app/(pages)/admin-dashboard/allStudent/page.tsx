@@ -5,13 +5,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui
 import { useStudents } from '../../../hooks/useAllStudents';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
+import { useBulkSuspend } from '../../../hooks/useBulkSuspend';
 
 export default function AllStudents() {
   const [search, setSearch] = useState('');
+  const getCurrentYearString = () => {
+    const currentYear = new Date().getFullYear();
+    // Logic: If current month is after June (variable), academic year is current-next. Else previous-current.
+    // Assuming simplified logic: default to current calendar year based range or just current-next
+    // Based on dropdown [0,1,2,3...], let's default to the first option or calculate dynamically.
+    // Defaulting to "currentYear-currentYear+1" e.g. "2025-2026"
+    return `${currentYear}-${currentYear + 1}`;
+  };
+
   const [status, setStatus] = useState<'PENDING' | 'APPROVED' | 'SUSPENDED'>('PENDING');
   const [page, setPage] = useState(1);
-  const { data, isLoading, error } = useStudents({ status, search, page });
+  const [yearOfAdmission, setYearOfAdmission] = useState(getCurrentYearString());
+  // Removed selectedStudents state
+  const { data, isLoading, error } = useStudents({ status, search, page, yearOfAdmission });
+  const { mutate: suspendStudents, isPending: isSuspending } = useBulkSuspend();
 
   const handlePrevious = () => {
     if (page > 1) setPage(page - 1);
@@ -19,6 +32,30 @@ export default function AllStudents() {
 
   const handleNext = () => {
     if (data && page < data.pages) setPage(page + 1);
+  };
+
+  // Removed handleSelectStudent
+
+  const handleBulkSuspend = () => {
+    if (!yearOfAdmission) {
+      alert('Please select a Year of Admission first');
+      return;
+    }
+    const reason = prompt(`Are you sure you want to suspend ALL students from ${yearOfAdmission}? Enter reason:`);
+    if (!reason) return;
+    
+    suspendStudents({ 
+      yearOfAdmission, 
+      rejectionReason: reason 
+    }, {
+      onSuccess: (data) => {
+        alert(data.message || 'Students suspended successfully');
+      },
+      onError: (err: any) => {
+        alert(err.response?.data?.message || 'Failed to suspend students');
+      }
+    });
+
   };
 
   return (
@@ -57,6 +94,35 @@ export default function AllStudents() {
               <option value="APPROVED">Approved</option>
               <option value="SUSPENDED">Suspended</option>
             </select>
+             <select
+              value={yearOfAdmission}
+              onChange={(e) => {
+                setYearOfAdmission(e.target.value);
+                setPage(1);
+              }}
+              className="w-full sm:max-w-xs rounded-xl border border-gray-300 bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
+            >
+              <option value="">All Years</option>
+              {[...Array(6)].map((_, i) => {
+                const year = new Date().getFullYear() - 4 + i;
+                const yearString = `${year}-${year + 1}`;
+                return (
+                  <option key={yearString} value={yearString}>
+                    {yearString}
+                  </option>
+                );
+              })}
+            </select>
+            {yearOfAdmission && (
+              <button
+                onClick={handleBulkSuspend}
+                disabled={isSuspending}
+                className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-red-700 transition flex items-center gap-2"
+              >
+                {isSuspending && <Loader2 className="animate-spin h-4 w-4" />}
+                Suspend Batch ({yearOfAdmission})
+              </button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -74,7 +140,7 @@ export default function AllStudents() {
               {data?.students.map((student) => (
                 <Card
                   key={student.id}
-                  className="shadow-md hover:shadow-lg transition  rounded-2xl"
+                  className="shadow-md hover:shadow-lg transition rounded-2xl"
                 >
                   <CardContent className="p-4 sm:p-6 space-y-4 text-center">
                     <div className="w-16 h-16 mx-auto rounded-full overflow-hidden ring-2 ring-hostel-gold flex items-center justify-center bg-hostel-gold/10">

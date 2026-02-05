@@ -1128,75 +1128,81 @@ export default function StudentDetails() {
         </>
       )}
 
-      {!isEditingMode && (
-        <div className="text-center m-4 flex  flex-wrap justify-space-between ">
-        {data?.student && data.student.status
-               === 'PENDING' && (
-            <div className="m-6 space-y-4">
-          
-              <div className="flex flex-col sm:flex-row gap-4">
+      {!isEditingMode && data?.student && (
+        <div className="text-center m-4 flex flex-wrap justify-center gap-4">
+          {/* PENDING Status: Show Approve and Suspend */}
+          {data.student.status === 'PENDING' && (
+            <div className="flex gap-4">
+              <button
+                onClick={handleApprove}
+                disabled={isApproving}
+                className="rounded-md bg-hostel-gold px-4 sm:px-6 py-2 font-medium text-white hover:bg-hostel-gold/90 transition disabled:opacity-50"
+              >
+                {isApproving ? 'Processing...' : 'Approve'}
+              </button>
+              <button
+                 onClick={() => setShowRejectionInput(true)}
+                 disabled={isApproving || showRejectionInput}
+                 className="rounded-md bg-red-500 px-4 sm:px-6 py-2 font-medium text-white hover:bg-red-600 transition disabled:opacity-50"
+               >
+                 Reject
+               </button>
+            </div>
+          )}
+
+          {/* APPROVED Status: Show Suspend only */}
+          {data.student.status === 'APPROVED' && (
+            <button
+              onClick={() => setShowRejectionInput(true)}
+              disabled={isApproving || showRejectionInput}
+              className="rounded-md bg-red-500 px-4 sm:px-6 py-2 font-medium text-white hover:bg-red-600 transition disabled:opacity-50"
+            >
+              Suspend
+            </button>
+          )}
+
+          {/* SUSPENDED Status: Show Re-Approve only */}
+          {data.student.status === 'SUSPENDED' && (
+            <button
+              onClick={handleApprove}
+              disabled={isApproving}
+              className="rounded-md bg-green-600 px-4 sm:px-6 py-2 font-medium text-white hover:bg-green-700 transition disabled:opacity-50"
+            >
+              {isApproving ? 'Processing...' : 'Re-Approve'}
+            </button>
+          )}
+
+          {/* Rejection/Suspension Input Modal */}
+          {showRejectionInput && (
+            <div className="w-full max-w-md mx-auto mt-4 space-y-2 text-left">
+              <label htmlFor="rejectionReason" className="block text-sm font-medium">
+                {data.student.status === 'PENDING' ? 'Rejection Reason *' : 'Suspension Reason *'}
+              </label>
+              <textarea
+                id="rejectionReason"
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder={`Enter reason for ${data.student.status === 'PENDING' ? 'rejection' : 'suspension'}`}
+                className="w-full rounded-md border border-input bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
+                rows={4}
+                disabled={isApproving}
+              />
+              <div className="flex justify-end gap-4">
                 <button
-                  onClick={handleApprove}   
+                  onClick={() => setShowRejectionInput(false)}
                   disabled={isApproving}
-                  className="rounded-md bg-hostel-gold px-4 sm:px-6 py-2 font-medium text-white hover:bg-hostel-gold/90 transition disabled:opacity-50"
+                  className="rounded-md bg-gray-300 px-4 sm:px-6 py-2 font-medium text-gray-700 hover:bg-gray-400 transition disabled:opacity-50"
                 >
-                  {isApproving ? 'Processing...' : 'Approve'}
+                  Cancel
                 </button>
-                </div>
-              </div>
-            )
-            }
-          {data?.student  && (
-            <div className="m-6 space-y-4">
-            
-              <div className="flex flex-col sm:flex-row gap-4">
-                {/* <button
-                  onClick={handleApprove}
-                  disabled={isApproving}
-                  className="rounded-md bg-hostel-gold px-4 sm:px-6 py-2 font-medium text-white hover:bg-hostel-gold/90 transition disabled:opacity-50"
-                >
-                  {isApproving ? 'Processing...' : 'Approve'}
-                </button> */}
                 <button
-                  onClick={() => setShowRejectionInput(true)}
-                  disabled={isApproving || showRejectionInput}
+                  onClick={handleSuspend}
+                  disabled={isApproving}
                   className="rounded-md bg-red-500 px-4 sm:px-6 py-2 font-medium text-white hover:bg-red-600 transition disabled:opacity-50"
                 >
-                  Suspend
+                  {isApproving ? 'Processing...' : (data.student.status === 'PENDING' ? 'Confirm Rejection' : 'Confirm Suspension')}
                 </button>
               </div>
-              {showRejectionInput && (
-                <div className="space-y-2">
-                  <label htmlFor="rejectionReason" className="block text-sm font-medium">
-                    Rejection Reason *
-                  </label>
-                  <textarea
-                    id="rejectionReason"
-                    value={rejectionReason}
-                    onChange={(e) => setRejectionReason(e.target.value)}
-                    placeholder="Enter reason for suspension"
-                    className="w-full rounded-md border border-input bg-muted/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-hostel-gold"
-                    rows={4}
-                    disabled={isApproving}
-                  />
-                  <div className="flex justify-end gap-4">
-                    <button
-                      onClick={() => setShowRejectionInput(false)}
-                      disabled={isApproving}
-                      className="rounded-md bg-gray-300 px-4 sm:px-6 py-2 font-medium text-gray-700 hover:bg-gray-400 transition disabled:opacity-50"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSuspend}
-                      disabled={isApproving}
-                      className="rounded-md bg-red-500 px-4 sm:px-6 py-2 font-medium text-white hover:bg-red-600 transition disabled:opacity-50"
-                    >
-                      {isApproving ? 'Processing...' : 'Confirm Suspension'}
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>

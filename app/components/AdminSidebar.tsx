@@ -29,6 +29,7 @@ export const AdminSidebar = () => {
   { path: "/admin-dashboard/tickets", label: "Tickets", icon: Star },
   { path: "/admin-dashboard/commonMsg", label: "Common Message", icon: Star },
   { path: "/admin-dashboard/leaves", label: "Leave Management", icon: Calendar },
+  { path: "/admin-dashboard/payment", label: "Payment Management", icon: Calendar },
 
 ];
 

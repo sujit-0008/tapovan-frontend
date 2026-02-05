@@ -62,6 +62,7 @@ export default function StudentRegistration() {
     foodPreference: '',
     foodRestrictions: '',
     specialDietaryRequirements: '',
+    yearOfAdmission: '',
   });
   const [files, setFiles] = useState<{
     passportPhoto: File | null;
@@ -123,6 +124,7 @@ export default function StudentRegistration() {
       'emergencyContactNumber',
       'emergencyContactRelation',
       'password',
+      'yearOfAdmission',
       
       // 'parent1Name',
       // 'parent1Address',
@@ -219,6 +221,30 @@ export default function StudentRegistration() {
                       onChange={handleInputChange}
                       disabled={isPending}
                     />
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="yearOfAdmission" className="text-sm font-medium">
+                      Year of Admission *
+                    </label>
+                    <select
+                      id="yearOfAdmission"
+                      name="yearOfAdmission"
+                      className={inputClass}
+                      value={formData.yearOfAdmission}
+                      onChange={handleInputChange}
+                      disabled={isPending}
+                    >
+                      <option value="" disabled>-- Select Year --</option>
+                      {[...Array(6)].map((_, i) => {
+                        const startYear = new Date().getFullYear() - 4 + i;
+                        const yearString = `${startYear}-${startYear + 1}`;
+                        return (
+                          <option key={yearString} value={yearString}>
+                            {yearString}
+                          </option>
+                        );
+                      })}
+                    </select>
                   </div>
                   <div className="space-y-1">
                     <label htmlFor="gender" className="text-sm font-medium">
