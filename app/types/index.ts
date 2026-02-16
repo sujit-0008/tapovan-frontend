@@ -3,12 +3,12 @@ export interface LoginCredentials {
   password: string;
 }
 
-export type UserRole = 'STUDENT' | 'ADMIN' | 'FACILITY_ADMIN' | 'STAFF' | 'PARENT' | 'VENDOR';
+export type UserRole = 'STUDENT' | 'ADMIN' | 'FACILITY_ADMIN' | 'STAFF' | 'PARENT' | 'VENDOR' | 'MEDICAL_VENDOR' | 'FOOD_VENDOR';
 
 export interface LoginResponse {
   message: string;
   userType: UserRole;
-  id:string;
+  id: string;
 }
 
 export interface RefreshResponse {

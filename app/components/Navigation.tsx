@@ -2,13 +2,41 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/authStore";
 import * as authService from "../services/authService";
 export const Navigation = () => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated, logout, user } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const getDashboardInfo = (role?: string) => {
+    switch (role) {
+      case "STUDENT":
+        return { path: "/studentDashboard", label: "Student Dashboard" };
+      case "ADMIN":
+      case "FACILITY_ADMIN":
+        return { path: "/admin-dashboard", label: "Admin Dashboard" };
+      case "STAFF":
+        return { path: "/staffDashboard", label: "Staff Dashboard" };
+      case "PARENT":
+        return { path: "/parentDashboard", label: "Parent Dashboard" };
+      case "VENDOR":
+        return { path: "/vendorDashboard", label: "Vendor Dashboard" };
+      case "MEDICAL_VENDOR":
+        return { path: "/medicalVendorDashboard", label: "Medical Dashboard" };
+      case "FOOD_VENDOR":
+        return { path: "/foodVendorDashboard", label: "Food Dashboard" };
+      default:
+        return { path: "/dashboard", label: "Dashboard" };
+    }
+  };
+  const dashboardInfo = getDashboardInfo(user?.role);
   const router = useRouter();
   const handleLogout = async () => {
     try {
@@ -57,24 +85,40 @@ export const Navigation = () => {
                 {item.label}
               </Link>
             ))}
-            {!isAuthenticated ? (
-              <Link
-                href="/login"
-                className={`px-4 py-2 rounded-lg transition-all duration-200 font-medium ${
-                  isActive("/login")
-                    ? "bg-white/20 text-white"
-                    : "text-white/90 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                Login
-              </Link>
-            ) : (
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 rounded-lg transition-all duration-200 font-medium text-white/90 hover:bg-white/10 hover:text-white"
-              >
-                Logout
-              </button>
+            {mounted && (
+              <>
+                {!isAuthenticated ? (
+                  <Link
+                    href="/login"
+                    className={`px-4 py-2 rounded-lg transition-all duration-200 font-medium ${
+                      isActive("/login")
+                        ? "bg-white/20 text-white"
+                        : "text-white/90 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    Login
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      href={dashboardInfo.path}
+                      className={`px-4 py-2 rounded-lg transition-all duration-200 font-medium ${
+                        isActive(dashboardInfo.path)
+                          ? "bg-white/20 text-white"
+                          : "text-white/90 hover:bg-white/10 hover:text-white"
+                      }`}
+                    >
+                      {dashboardInfo.label}
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="px-4 py-2 rounded-lg transition-all duration-200 font-medium text-white/90 hover:bg-white/10 hover:text-white"
+                    >
+                      Logout
+                    </button>
+                  </>
+                )}
+              </>
             )}
           </nav>
           {/* Mobile Menu Button */}
@@ -110,25 +154,42 @@ export const Navigation = () => {
                   {item.label}
                 </Link>
               ))}
-              {!isAuthenticated ? (
-                <Link
-                  href="/login"
-                  className={`px-4 py-3 rounded-lg transition-all duration-200 font-medium ${
-                    isActive("/login")
-                      ? "bg-white/20 text-white"
-                      : "text-white/90 hover:bg-white/10 hover:text-white"
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Login
-                </Link>
-              ) : (
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-3 rounded-lg transition-all duration-200 font-medium text-white/90 hover:bg-white/10 hover:text-white text-left"
-                >
-                  Logout
-                </button>
+              {mounted && (
+                <>
+                  {!isAuthenticated ? (
+                    <Link
+                      href="/login"
+                      className={`px-4 py-3 rounded-lg transition-all duration-200 font-medium ${
+                        isActive("/login")
+                          ? "bg-white/20 text-white"
+                          : "text-white/90 hover:bg-white/10 hover:text-white"
+                      }`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        href={dashboardInfo.path}
+                        className={`px-4 py-3 rounded-lg transition-all duration-200 font-medium ${
+                          isActive(dashboardInfo.path)
+                            ? "bg-white/20 text-white"
+                            : "text-white/90 hover:bg-white/10 hover:text-white"
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {dashboardInfo.label}
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="px-4 py-3 rounded-lg transition-all duration-200 font-medium text-white/90 hover:bg-white/10 hover:text-white text-left"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  )}
+                </>
               )}
             </div>
           </nav>
