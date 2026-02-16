@@ -13,7 +13,7 @@ export default function DoctorDashboard() {
   // Deterministic UTC date formatter to avoid SSR/CSR hydration differences
   const formatUTCDate = (input: string | number | Date | undefined | null) => {
     if (!input) return 'Unknown date';
-    const d = input instanceof Date ? input : new Date(input as any);
+    const d = input instanceof Date ? input : new Date(input as string);
     if (!d || Number.isNaN(d.getTime())) return 'Unknown date';
     const day = String(d.getUTCDate()).padStart(2, '0');
     const month = String(d.getUTCMonth() + 1).padStart(2, '0');
@@ -48,6 +48,7 @@ export default function DoctorDashboard() {
           setCheckupForm({ report: '', prescription: '', notes: '' });
           alert('Checkup report added successfully!');
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError: (err: any) => alert(err.message || 'Failed to add checkup'),
       }
     );
@@ -171,8 +172,8 @@ export default function DoctorDashboard() {
                   <p className="text-gray-500">No checkup reports yet.</p>
                 ) : (
                   <div className="space-y-4">
-                    {historyData.history.checkupReports.map((report, idx) => (
-                          <Card key={report.id ?? report._id ?? `${selectedStudentId}-${idx}`} className="bg-muted/20">
+                      {historyData.history.checkupReports.map((report, idx) => (
+                        <Card key={report.id ?? `${selectedStudentId}-${idx}`} className="bg-muted/20">
                         <CardContent className="p-4">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">

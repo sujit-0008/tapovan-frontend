@@ -7,6 +7,7 @@ export interface StudentListItem {
   email: string;
   status: 'PENDING' | 'APPROVED' | 'SUSPENDED';
   photo: string | null;
+  rollNumber?: string;
 }
 export interface AllStudentsResponse {
   students: StudentListItem[];

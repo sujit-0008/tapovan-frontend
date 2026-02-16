@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   Users,
   Utensils,
-  Gamepad2,
   Heart,
   Truck,
   Star,

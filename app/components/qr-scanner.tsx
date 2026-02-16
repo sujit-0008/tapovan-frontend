@@ -34,6 +34,7 @@ export function QRScanner({ onScan }: QRScannerProps) {
             width: { ideal: 1280 },
             height: { ideal: 720 },
             // Add focus mode for better scanning
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             focusMode: 'continuous' as any,
           },
           audio: false,
@@ -60,6 +61,7 @@ export function QRScanner({ onScan }: QRScannerProps) {
             }
           };
         }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error('Camera access error:', error);
         

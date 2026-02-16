@@ -23,6 +23,7 @@ export const useMedicalHistory = (studentId: string) => {
 export const useAddCheckup = () => {
   const qc = useQueryClient();
   return useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: ({ studentId, data }: { studentId: string; data: any }) =>
       addCheckupReport(studentId, data),
     onSuccess: (_, variables) => {

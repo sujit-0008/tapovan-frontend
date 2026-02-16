@@ -36,7 +36,7 @@ export const getLeaves = async (
   page: number = 1,
   limit: number = 10
 ): Promise<LeaveListResponse> => {
-  const params: any = { page, limit };
+  const params: { page: number; limit: number; status?: string; studentId?: string } = { page, limit };
   if (status) params.status = status;
   if (studentId) params.studentId = studentId;
 

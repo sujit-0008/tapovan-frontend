@@ -1,4 +1,4 @@
-import { REACT_LOADABLE_MANIFEST } from "next/dist/shared/lib/constants";
+
 
 export const API_ROUTES = {
   AUTH: {

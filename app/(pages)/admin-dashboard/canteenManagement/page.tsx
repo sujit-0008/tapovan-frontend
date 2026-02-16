@@ -85,7 +85,7 @@ export default function CanteenManagement() {
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.entries(menusData.menus).map(([date, meals]: [string, any]) => (
+                  {Object.entries(menusData.menus).map(([date, meals]) => (
                     <tr key={date} className="hover:bg-gray-50">
                       <td className="border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700">
                         {new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}

@@ -3,6 +3,7 @@
  * @param error - The error object from API calls or other sources
  * @returns A user-friendly error message string
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getErrorMessage = (error: any): string => {
   // If it's already a string, return it
   if (typeof error === 'string') {
@@ -48,6 +49,7 @@ export const getErrorMessage = (error: any): string => {
 /**
  * Type guard to check if error has status information
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const hasErrorStatus = (error: any): error is { status: number; statusText?: string } => {
   return error && typeof error.status === 'number';
 };

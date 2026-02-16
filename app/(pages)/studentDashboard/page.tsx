@@ -9,26 +9,23 @@ import { Button } from '../../components/ui/button';
 import { QRScanner } from '../../components/qr-scanner';
 import { useMealCheckin } from '../../hooks/useMealCheckin';
 import { useSkipMeal } from '../../hooks/useSkipMeal';
-import { useCreateBooking } from '../../hooks/useCreateBooking';
+
 import { useCreateSOSAlert } from '../../hooks/useCreateSOSAlert';
 import { useCreateTicket, useRoomTickets } from '../../hooks/useCreateTicket';
-import { useFacilities } from '../../hooks/useFacilities';
-import { useBookings } from '../../hooks/useBookings';
+
 import { useCreateLeave, useUpdateLeave, useMyLeaves } from '../../hooks/useLeave';
 import { useAuthStore } from '../../store/authStore';
 import { getErrorMessage } from '../../utils/errorUtils';
 
 export default function StudentDashboard() {
   const router = useRouter();
-  const { user, logout } = useAuthStore();
-  const { mutate: checkinMeal, isPending: isCheckingIn } = useMealCheckin();
+  const { user } = useAuthStore();
+  const { mutate: checkinMeal } = useMealCheckin();
   const { mutate: skipMeal, isPending: isSkipping } = useSkipMeal();
-  const { mutate: createBooking, isPending: isBooking } = useCreateBooking();
   const { mutate: createSOSAlert, isPending: isCreatingSOS } = useCreateSOSAlert();
   const { mutate: createTicket, isPending: isCreatingTicket } = useCreateTicket();
   const { data: roomTicketsData } = useRoomTickets();
-  const { data: facilitiesData, isLoading: isFacilitiesLoading } = useFacilities();
-  const { data: bookingsData, isLoading: isBookingsLoading } = useBookings();
+
   const { mutate: createLeaveReq, isPending: isCreatingLeave } = useCreateLeave();
   const { mutate: updateLeaveReq, isPending: isUpdatingLeave } = useUpdateLeave();
   const { data: myLeavesData, isLoading: isLeavesLoading } = useMyLeaves();
@@ -37,7 +34,7 @@ export default function StudentDashboard() {
     mealTypes: [] as string[], 
     date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0] 
   });
-  const [bookingForm, setBookingForm] = useState({ facilityId: '', slotStart: '', slotEnd: '' });
+
   const [ticketForm, setTicketForm] = useState({ category: '', description: '', severity: '', roomNumber: '' });
   const [leaveForm, setLeaveForm] = useState({ startDate: '', endDate: '', reason: '' });
   const [editingLeave, setEditingLeave] = useState<{ id: string; startDate: string; endDate: string; reason: string } | null>(null);
@@ -55,16 +52,30 @@ export default function StudentDashboard() {
       alert('Please select at least one meal type');
       return;
     }
-    skipMeal({ mealTypes: mealSkip.mealTypes, date: mealSkip.date }, {
-      onSuccess: () => {
+    
+    // Make a request for each selected meal type
+    const mealTypeRequests = mealSkip.mealTypes.map(mealType =>
+      new Promise<void>((resolve, reject) => {
+        skipMeal({ mealType: mealType as 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK' | 'ALL', date: mealSkip.date }, {
+          onSuccess: () => {
+            resolve();
+          },
+          onError: (error) => {
+            reject(error);
+          },
+        });
+      })
+    );
+
+    Promise.all(mealTypeRequests)
+      .then(() => {
         alert('Meal skip recorded');
         setMealSkip({ mealTypes: [], date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0] });
-      },
-      onError: (error) => {
+      })
+      .catch((error) => {
         const errorMessage = getErrorMessage(error);
         alert(`Failed to skip meal: ${errorMessage}`);
-      },
-    });
+      });
   };
 
   const handleMealTypeToggle = (mealType: string) => {
@@ -76,26 +87,7 @@ export default function StudentDashboard() {
     }));
   };
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createBooking(
-      {
-        facilityId: parseInt(bookingForm.facilityId),
-        slotStart: new Date(bookingForm.slotStart).toISOString(),
-        slotEnd: new Date(bookingForm.slotEnd).toISOString(),
-      },
-      {
-        onSuccess: () => {
-          alert('Booking created successfully');
-          setBookingForm({ facilityId: '', slotStart: '', slotEnd: '' });
-        },
-        onError: (error) => {
-          const errorMessage = getErrorMessage(error);
-          alert(`Failed to create booking: ${errorMessage}`);
-        },
-      }
-    );
-  };
+
 
   const handleSOSAlert = () => {
     if ('geolocation' in navigator) {
@@ -170,6 +162,7 @@ export default function StudentDashboard() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEditLeave = (leave: any) => {
     setEditingLeave({ id: leave.id.toString(), startDate: leave.startDate.split('T')[0], endDate: leave.endDate.split('T')[0], reason: leave.reason });
     setLeaveForm({ startDate: leave.startDate.split('T')[0], endDate: leave.endDate.split('T')[0], reason: leave.reason });
@@ -223,7 +216,7 @@ export default function StudentDashboard() {
       {/* Skip Meal */}
       <Card>
         <CardHeader>
-          <CardTitle>Skip Tomorrow's Meal</CardTitle>
+          <CardTitle>Skip Tomorrow&apos;s Meal</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSkipMeal} className="space-y-4 sm:space-y-6">

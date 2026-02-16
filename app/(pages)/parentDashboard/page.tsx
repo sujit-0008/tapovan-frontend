@@ -1,17 +1,15 @@
 
 'use client';
 
-import { useState } from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { useParentAttendance } from '../../hooks/useParentAttendance';
-import { useAuthStore } from '../../store/authStore';
-import { Button } from '@/app/components/ui/button';
+
+
 
 export default function ParentDashboard() {
-  const { user } = useAuthStore();
   const { data, isLoading, error } = useParentAttendance();
 
-  const [activeSection, setActiveSection] = useState('foodIntake');
 
   if (isLoading) return <p className="p-4 sm:p-6 text-gray-500 text-sm">Loading dashboard...</p>;
   if (error) return <p className="p-4 sm:p-6 text-red-500 text-sm">Error: {error.message || 'Failed to load dashboard'}</p>;

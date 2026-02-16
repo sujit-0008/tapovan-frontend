@@ -5,6 +5,15 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRequestPasswordReset } from '../../hooks/useRequestPasswordReset';
 
+
+interface CustomError extends Error {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
+
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const { mutate: requestReset, isPending, error } = useRequestPasswordReset();
@@ -41,7 +50,7 @@ export default function ForgotPassword() {
               </div>
               {error && (
                 <div className="text-red-500 text-sm">
-                  {error.response?.data?.message || 'An error occurred'}
+                  {(error as CustomError).response?.data?.message || 'An error occurred'}
                 </div>
               )}
               <button

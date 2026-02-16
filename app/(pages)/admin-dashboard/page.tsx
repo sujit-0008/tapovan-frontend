@@ -53,7 +53,7 @@ export default function AdminNotifications() {
       {/* Today's Absent Count */}
       <Card>
         <CardHeader>
-          <CardTitle>Today's Absent Students</CardTitle>
+          <CardTitle>Today&apos;s Absent Students</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-red-600">

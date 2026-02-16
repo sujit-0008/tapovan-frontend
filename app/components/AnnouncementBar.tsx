@@ -23,7 +23,7 @@ export default function AnnouncementBar() {
     if (dismissedId !== null && dismissedId !== message.id) {
       setDismissedId(null);
     }
-  }, [message?.id]);
+  }, [message, dismissedId]);
 
   const hidden = useMemo(() => {
     if (!message) return true;
@@ -35,7 +35,7 @@ export default function AnnouncementBar() {
     if (!message) return 20;
     const len = (message.content || '').length;
     return Math.max(12, Math.min(40, Math.round(len / 3)));
-  }, [message?.id, message?.content]);
+  }, [message]);
 
   if (isLoading || hidden || !message) return null;
 

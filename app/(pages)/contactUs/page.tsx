@@ -11,7 +11,7 @@ const Contact = () => {
             Contact Us
           </h1>
           <p className="text-center text-hostel-textDark/80 max-w-2xl mx-auto leading-relaxed">
-            We're here to help! Reach out to us with any questions or concerns.
+            We&apos;re here to help! Reach out to us with any questions or concerns.
             Our team is dedicated to providing prompt and helpful assistance to
             ensure your experience with Tapovan Boys Hostel is exceptional.
           </p>

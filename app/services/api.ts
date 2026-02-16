@@ -52,7 +52,7 @@ api.interceptors.response.use(
         const { data: { userType } } = await api.post(API_ROUTES.AUTH.REFRESH);
         useAuthStore.getState().setUser(userType as UserRole);
         return api(originalRequest);
-      } catch (refreshError) {
+      } catch {
         window.location.href = '/login';
         return Promise.reject(enhancedError);
       }

@@ -51,6 +51,7 @@ export default function AllStudents() {
       onSuccess: (data) => {
         alert(data.message || 'Students suspended successfully');
       },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onError: (err: any) => {
         alert(err.response?.data?.message || 'Failed to suspend students');
       }

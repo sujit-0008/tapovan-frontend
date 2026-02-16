@@ -82,6 +82,7 @@ export default function StaffManagement() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEdit = (staff: any) => {
     setEditingStaffId(staff.id.toString());
     setFormData({
@@ -149,7 +150,7 @@ export default function StaffManagement() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data?.staff?.map((staff, index) => (
+                  {data?.staff?.map((staff) => (
                     <tr key={staff.id} className="border-b hover:bg-gray-50">
                       <td className="py-3 px-4 font-medium text-sm sm:text-base">{staff.name}</td>
                       <td className="py-3 px-4">

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getAllVendors } from '../services/getAllvendorsService';
 import { AllVendorsQueryParams, AllVendorsResponse } from '../types/allVendors';
 
@@ -6,6 +6,6 @@ export const useVendors = (params: AllVendorsQueryParams = { status: 'PENDING', 
   return useQuery<AllVendorsResponse, Error>({
     queryKey: ['vendors', params],
     queryFn: () => getAllVendors(params),
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 };

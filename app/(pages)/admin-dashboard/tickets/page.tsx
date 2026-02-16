@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Input } from '../../../components/ui/input';
-import { Select } from '../../..//components/ui/select';
-import { Button } from '../../..//components/ui/button';
+import { Button } from '../../../components/ui/button';
 import {
   useTickets,
   useUpdateTicketStatus,
@@ -13,13 +12,13 @@ import {
   useReassignTicketBySkills,
 } from '../../../hooks/useTickets';
 import { ChevronDown, Wrench } from 'lucide-react';
-import { TicketStatus } from '../../../types/ticket';
+import { TicketStatus, Ticket } from '../../../types/ticket';
 import { Search, UserCheck, Clock, CheckCircle, RefreshCw } from 'lucide-react';
 
 export default function TicketManagement() {
   const [statusFilter, setStatusFilter] = useState<'PENDING' | 'IN_PROGRESS' | 'CLOSED'>('PENDING');
   const [page, setPage] = useState(1);
-  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showReassignModal, setShowReassignModal] = useState(false);
@@ -56,20 +55,20 @@ export default function TicketManagement() {
     }
   };
 
-  const handleAssign = (ticket: any): void => {
+  const handleAssign = (ticket: Ticket): void => {
     setSelectedTicket(ticket);
     const suggested = skillMapping[ticket.category] || [];
     setSearchSkills(suggested.join(','));
     setShowAssignModal(true);
   };
 
-  const handleStatusChange = (ticket: any): void => {
+  const handleStatusChange = (ticket: Ticket): void => {
     setSelectedTicket(ticket);
     setClosingNote('');
     setShowStatusModal(true);
   };
 
-  const handleReassign = (ticket: any): void => {
+  const handleReassign = (ticket: Ticket): void => {
     setSelectedTicket(ticket);
     const suggested = skillMapping[ticket.category] || [];
     setSearchSkills(suggested.join(','));
@@ -132,13 +131,13 @@ export default function TicketManagement() {
     );
   };
 
-  const handleCloseTicket = (ticket: any) => {
+  const handleCloseTicket = (ticket: Ticket) => {
     setSelectedTicket(ticket);
     setClosingNote('');
     setShowStatusModal(true);
   };
 
-  const handleReopen = (ticket: any) => {
+  const handleReopen = (ticket: Ticket) => {
     statusMutation.mutate(
       { id: ticket.id.toString(), status: 'PENDING' },
       {

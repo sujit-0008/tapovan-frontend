@@ -76,6 +76,7 @@ export default function VendorRegistration() {
           <CardContent className="p-8">
             {error && (
               <div className="text-red-500 text-sm mb-4">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {(error as any).response?.data?.error || 'An error occurred during registration'}
               </div>
             )}

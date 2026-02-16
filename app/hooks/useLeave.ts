@@ -25,7 +25,7 @@ export const useCreateLeave = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-leaves'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Create leave error:', error.message);
       // Enhanced error handling - the error interceptor already provides better messages
     },
@@ -39,7 +39,7 @@ export const useUpdateLeave = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-leaves'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Update leave error:', error.message);
     },
   });
@@ -68,7 +68,7 @@ export const useUpdateLeaveStatus = () => {
       queryClient.invalidateQueries({ queryKey: ['leaves'] });
       queryClient.invalidateQueries({ queryKey: ['absent-count'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Update leave status error:', error.message);
       // Enhanced error handling - the error interceptor provides detailed backend messages
     },

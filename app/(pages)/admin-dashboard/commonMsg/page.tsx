@@ -9,14 +9,14 @@ export default function AdminCommonMsgPage() {
   const updateMut = useUpdateCommonMessage();
   const deleteMut = useDeleteCommonMessage();
 
-  const messages = (data as ListCommonMessagesResponse | undefined)?.messages ?? [];
+  const messages = useMemo(() => (data as ListCommonMessagesResponse | undefined)?.messages ?? [], [data]);
   const latest = useMemo(() => (messages && messages.length > 0 ? messages[0] : null), [messages]);
 
   const [form, setForm] = useState({ content: "" });
 
   useEffect(() => {
     if (latest) setForm({ content: latest.content });
-  }, [latest?.id]);
+  }, [latest]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -47,6 +47,7 @@ export default function AdminCommonMsgPage() {
 
       {(qError || createMut.error || updateMut.error || deleteMut.error) && (
         <div className="mb-4 rounded border border-red-200 bg-red-50 text-red-700 p-3 text-sm">
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {(qError as any)?.message || (createMut.error as any)?.message || (updateMut.error as any)?.message || (deleteMut.error as any)?.message || 'An error occurred'}
         </div>
       )}

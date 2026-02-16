@@ -20,13 +20,13 @@ import { useVendorDetails } from "../../hooks/useVendorDetails";
 import { useMealScanCounts } from "../../hooks/useMealScanCounts";
 import { useAuthStore } from "../../store/authStore";
 import { useTodayAbsentCountVendor } from "../../hooks/useLeave";
-import { useQueryClient } from "@tanstack/react-query";
+
 
 export default function VendorDashboard() {
   const router = useRouter();
   const { user } = useAuthStore();
   const vendorId = user?.id?.toString() || "";
-  const queryClient = useQueryClient();
+
   // State declarations FIRST
   const [qrForm, setQrForm] = useState({ mealType: "", date: "", time: "" });
   const [menuDate, setMenuDate] = useState("");
@@ -58,10 +58,8 @@ export default function VendorDashboard() {
   const { data: menusData, isLoading: isMenusLoading } = useFoodMenus();
   const updateMenu = useUpdateFoodMenu(editMenuId || "");
 
-  const { data: mealScanCountsData, isLoading: isMealScanCountsLoading } =
-    useMealScanCounts({ date: today });
   const { data: absentData } = useTodayAbsentCountVendor();
-  console.log(mealScanCountsData);
+
   if (isVendorLoading)
     return <p className="p-4 sm:p-6 text-gray-500 text-sm">Loading...</p>;
   if (vendorData?.vendor.category !== "FOOD_VENDOR") {
@@ -182,6 +180,7 @@ export default function VendorDashboard() {
     );
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEditMenu = (menu: any) => {
     setEditMenuId(menu.id.toString());
     const date = new Date(menu.date).toISOString().split("T")[0];
@@ -226,7 +225,7 @@ export default function VendorDashboard() {
       {/* Today's Absent Count */}
       <Card>
         <CardHeader>
-          <CardTitle>Today's Absent Students</CardTitle>
+          <CardTitle>Today&apos;s Absent Students</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-red-600">
@@ -488,6 +487,7 @@ export default function VendorDashboard() {
                 </thead>
                 <tbody>
                   {Object.entries(menusData.menus).map(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     ([date, meals]: [string, any]) => (
                       <tr key={date} className="hover:bg-gray-50">
                         <td className="border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700">
@@ -603,7 +603,7 @@ export default function VendorDashboard() {
       {/* Tomorrow's Meal Skips */}
       <Card>
         <CardHeader>
-          <CardTitle>Tomorrow's Meal Skips</CardTitle>
+          <CardTitle>Tomorrow&apos;s Meal Skips</CardTitle>
         </CardHeader>
         <CardContent>
           {isSkipsLoading ? (

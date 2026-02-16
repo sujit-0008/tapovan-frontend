@@ -6,11 +6,10 @@ export const useCreateTicket = () => {
   return useMutation<CreateTicketResponse, Error, CreateTicketRequest | { data: CreateTicketRequest; file?: File }>({
     mutationFn: (vars) => {
       // support either mutate(ticketForm) OR mutate({ data: ticketForm, file })
-      if ((vars as any).data) {
-        const { data, file } = vars as { data: CreateTicketRequest; file?: File };
-        return createTicket(data, file);
+      if ('data' in vars) {
+        return createTicket(vars.data, vars.file);
       }
-      return createTicket(vars as CreateTicketRequest);
+      return createTicket(vars);
     },
     onError: (error) => {
       console.error('Create ticket error:', error.message);

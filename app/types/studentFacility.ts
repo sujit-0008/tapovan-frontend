@@ -22,6 +22,7 @@ export interface SkipMealRequest {
 
 export interface SkipMealResponse {
   message: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   skip: any; // Array or single object based on mealType
 }
 

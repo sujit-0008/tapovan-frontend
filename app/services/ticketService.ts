@@ -7,7 +7,7 @@ import {
   StaffTicket,
   StaffTicketsResponse,
   ReassignTicketResponse,
-  ReassignTicketPayload,
+
 } from '../types/ticket';
 
 export const getTickets = async (
@@ -34,6 +34,7 @@ export const updateTicketStatus = async (
   return response.data;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const assignTicketBySkills = async (ticketId: string): Promise<any> => {
   const response = await api.post(
     API_ROUTES.TICKET.ASSIGN_BY_SKILLS.replace(':id', ticketId), {}
@@ -63,6 +64,7 @@ export const updateMyTicketStatus = async (
   id: string,
   status: 'PENDING' | 'IN_PROGRESS' | 'CLOSED',
   note?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const response = await api.post(
     API_ROUTES.TICKET.STAFF_UPDATE_STATUS.replace(':id', id),

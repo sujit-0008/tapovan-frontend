@@ -2,24 +2,43 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useResetPassword } from '../../hooks/useResetPassword';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
-export default function ResetPassword() {
-  const [newPassword, setNewPassword] = useState('');
+interface CustomError extends Error {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
+
+function ResetPasswordContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
+  const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { mutate: resetPassword, isPending, error } = useResetPassword();
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token') || '';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) {
+    if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-    resetPassword({ token, newPassword });
+    if (token) {
+      resetPassword(
+        { token, newPassword: password },
+        {
+          onSuccess: () => {
+            alert('Password reset successful. Please login with your new password.');
+            router.push('/login');
+          },
+        }
+      );
+    }
   };
 
   return (
@@ -34,27 +53,33 @@ export default function ResetPassword() {
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="newPassword" className="text-sm font-medium text-hostel-textDark">
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium text-hostel-textDark"
+                >
                   New Password
                 </label>
                 <input
-                  id="newPassword"
+                  id="password"
                   type="password"
-                  placeholder="Enter your new password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white/80 focus:outline-none focus:ring-2 focus:ring-hostel-secondary"
                   disabled={isPending}
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-sm font-medium text-hostel-textDark">
+                <label
+                  htmlFor="confirmPassword"
+                  className="text-sm font-medium text-hostel-textDark"
+                >
                   Confirm Password
                 </label>
                 <input
                   id="confirmPassword"
                   type="password"
-                  placeholder="Confirm your new password"
+                  placeholder="Confirm new password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white/80 focus:outline-none focus:ring-2 focus:ring-hostel-secondary"
@@ -63,7 +88,7 @@ export default function ResetPassword() {
               </div>
               {error && (
                 <div className="text-red-500 text-sm">
-                  {error.response?.data?.message || 'An error occurred'}
+                  {(error as CustomError).response?.data?.message || 'An error occurred'}
                 </div>
               )}
               <button
@@ -86,5 +111,13 @@ export default function ResetPassword() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function ResetPassword() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

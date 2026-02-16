@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 import {  useState } from 'react';
 import { useStaffTickets, useStaffTicketDetails, useUpdateMyTicketStatus } from '../../hooks/useStaffTickets';
 import { TicketStatus } from '../../types/ticket';
@@ -125,7 +126,14 @@ const StaffDashboard = () => {
                   <Badge status={details.ticket.status as TicketStatus} />
                   <div className="text-gray-700">{details.ticket.description}</div>
                   {details.ticket.photoUrl && (
-                    <img src={details.ticket.photoUrl} alt="Ticket" className="rounded border" />
+                    <div className="relative w-full h-48">
+                      <Image 
+                        src={details.ticket.photoUrl} 
+                        alt="Ticket" 
+                        fill
+                        className="rounded border object-cover" 
+                      />
+                    </div>
                   )}
                   <div className="text-sm text-gray-500">Raised by: {details.ticket.raisedBy.firstName} {details.ticket.raisedBy.lastName}</div>
                   {details.ticket.roomNumber && (

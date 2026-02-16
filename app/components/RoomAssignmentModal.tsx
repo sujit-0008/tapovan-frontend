@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useStudents } from '../hooks/useAllStudents';
 import { useAssignStudentToRoom } from '../hooks/useAssignStudentToRoom';
 import { X, Search } from 'lucide-react';

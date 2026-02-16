@@ -7,7 +7,7 @@ import { Accordion } from '../../../../components/ui/accordion';
 import { useVendorDetails } from '../../../../hooks/useVendorDetails';
 import { useEditVendor } from '../../../../hooks/useEditVendor';
 import { EditVendorRequest } from '../../../../types/editVendor';
-import { useApproveVendor } from '../../../../hooks/useApproveVendor';
+
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -15,20 +15,8 @@ import Link from 'next/link';
 export default function VendorDetails() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error } = useVendorDetails(id);
-    const { mutate: approveVendor, isPending: isApproving } = useApproveVendor();
-  const [rejectionReason, setRejectionReason] = useState('');
-  const [showRejectionInput, setShowRejectionInput] = useState(false);
   const { mutate: editVendor, isPending: isEditing } = useEditVendor(id);
-    const handleApprove = () => {
-    approveVendor({ id, data: { status: 'APPROVED' } });}
-    
-  const handleSuspend = () => {
-    if (!rejectionReason.trim()) {
-      alert('Rejection reason is required for suspension');
-          return;
-    }
-    approveVendor({ id, data: { status: 'SUSPENDED', rejectionReason } });
-  };
+
 
 
   const [isEditingMode, setIsEditingMode] = useState(false);

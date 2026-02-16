@@ -9,8 +9,7 @@ import Link from 'next/link';
 
 export default function StudentRegistration() {
   const [studentFormOpen, setStudentFormOpen] = useState(true);
-  const [parentFormOpen, setParentFormOpen] = useState(false);
-  const [medicalFormOpen, setMedicalFormOpen] = useState(false);
+
   const [formData, setFormData] = useState({
     firstName: '',
     middleName: '',
@@ -89,22 +88,9 @@ export default function StudentRegistration() {
     }
   };
 
-  const handleLanguagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value, checked } = e.target;
-    setFormData((prev) => {
-      const currentLanguages = prev.languagesKnown;
-      if (checked) {
-        return { ...prev, languagesKnown: [...currentLanguages, value] };
-      }
-      return {
-        ...prev, languagesKnown: currentLanguages.filter((lang) => lang !== value),
-      };
-    });
-  };
 
-  const handlePhysicalDisabilityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, physicalDisabilityStatus: e.target.value === 'yes' }));
-  };
+
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,6 +146,7 @@ export default function StudentRegistration() {
       <div className="container mx-auto px-4 max-w-5xl space-y-8">
         {error && (
           <div className="text-red-500 text-sm text-center">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {(error as any)?.response?.data?.error || 'An error occurred during registration'}
           </div>
         )}

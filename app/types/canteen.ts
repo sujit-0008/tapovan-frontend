@@ -36,10 +36,15 @@ export interface FoodMenu {
 }
 
 // Interface for the entire API response from the getFoodMenus endpoint
+// Interface for the entire API response from the getFoodMenus endpoint
 export interface GetFoodMenusResponse {
-   weekStart: string,
-    weekEnd:string,
-  menus: FoodMenu[];
+  weekStart: string,
+  weekEnd: string,
+  menus: {
+    [date: string]: {
+      [key in MealType]?: FoodMenu[];
+    }
+  };
   totalMenus: number;
 }
 

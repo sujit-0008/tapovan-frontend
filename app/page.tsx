@@ -69,7 +69,7 @@ const Home = () => {
               <Building className="h-16 w-16 text-hostel-gold" />
             </div>
             <p className="text-lg text-hostel-textDark/80 leading-relaxed">
-              Tapovan Nest Boys Hostel offers a safe, structured, and student-friendly environment designed to support academic success and personal growth. Our facility is equipped with modern amenities and a fully digital management system to ensure transparency and efficiency. Students benefit from real-time entry/exit tracking, healthy meal plans, and easy access to medical care. Parents stay informed through a dedicated dashboard offering insights into their child's daily activities and well-being, with separate roles for admin, vendors and medical staff we maintain high standards of service safety. At Tapovan, we believe in creating not just a hostel but a second home for every student.
+              Tapovan Nest Boys Hostel offers a safe, structured, and student-friendly environment designed to support academic success and personal growth. Our facility is equipped with modern amenities and a fully digital management system to ensure transparency and efficiency. Students benefit from real-time entry/exit tracking, healthy meal plans, and easy access to medical care. Parents stay informed through a dedicated dashboard offering insights into their child&apos;s daily activities and well-being, with separate roles for admin, vendors and medical staff we maintain high standards of service safety. At Tapovan, we believe in creating not just a hostel but a second home for every student.
             </p>
           </div>
         </div>
@@ -83,7 +83,7 @@ const Home = () => {
           </div>
           
           <h3 className="text-2xl font-bold text-center mb-12 text-hostel-textDark">
-            Explore Our Hostel's Features
+            Explore Our Hostel&apos;s Features
           </h3>
           <p className="text-center mb-12 text-hostel-textDark/80">
             Discover the amenities and services that make Tapovan Boys Hostel the ideal choice for students.

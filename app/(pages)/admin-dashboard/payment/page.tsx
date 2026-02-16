@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
+
 import { usePaymentStats } from '../../../hooks/usePaymentStats';
 import { useStudents } from '../../../hooks/useAllStudents';
+import { StudentListItem } from '../../../types/allStudents';
 import { Search, Loader2, CreditCard, Users, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useDebounce } from '../../../hooks/useDebounce';
@@ -11,7 +13,7 @@ import { useDebounce } from '../../../hooks/useDebounce';
 export default function PaymentManagement() {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { data: statsData, isLoading: statsLoading, error: statsError } = usePaymentStats();
+  const { data: statsData, isLoading: statsLoading } = usePaymentStats();
   
   // Only fetch students if there is a search term
   const { data: studentsData, isLoading: studentsLoading } = useStudents({ 
@@ -106,9 +108,9 @@ export default function PaymentManagement() {
                  <div className="flex justify-center p-4">
                     <Loader2 className="h-6 w-6 animate-spin text-hostel-gold" />
                  </div>
-              ) : studentsData?.students?.length > 0 ? (
+              ) : studentsData?.students && studentsData.students.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {studentsData.students.map((student: any) => (
+                  {studentsData.students.map((student: StudentListItem) => (
                     <div key={student.id} className="p-4 border rounded-xl flex justify-between items-center bg-white shadow-sm">
                       <div>
                         <p className="font-semibold text-gray-800">{student.name}</p>

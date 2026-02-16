@@ -352,7 +352,7 @@ export default function StudentPayment() {
           {!isLoading && !error && data?.payments.length === 0 && (
             <p className="text-gray-500 text-sm text-center mt-6">No payments found.</p>
           )}
-          {!isLoading && !error && data?.payments.length > 0 && (
+          {!isLoading && !error && data && data.payments && data.payments.length > 0 && (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>

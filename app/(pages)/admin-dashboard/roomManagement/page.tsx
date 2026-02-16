@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { useRooms } from '../../../hooks/useRooms';
+import { Room } from '../../../types/room';
 
 import { useRoomOccupancyReport } from '../../../hooks/useRoomOccupancyReport';
 import { useDeleteRoom } from '../../../hooks/useDeleteRoom';
@@ -22,7 +23,7 @@ export default function RoomManagement() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isOccupantsModalOpen, setIsOccupantsModalOpen] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
-  const [selectedRoom, setSelectedRoom] = useState<any>(null);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'occupancy'>('list');
 
   const { data: roomsData, isLoading: roomsLoading, error: roomsError } = useRooms({
