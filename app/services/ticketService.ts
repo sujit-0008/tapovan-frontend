@@ -85,11 +85,12 @@ export const getSkillsForCategory = async (): Promise<{ skillMapping: SkillMappi
 
 export const reassignTicketBySkills = async (
   ticketId: string,
+  staffId: number,
   reason?: string
 ): Promise<ReassignTicketResponse> => {
   const response = await api.post<ReassignTicketResponse>(
     API_ROUTES.TICKET.REASSIGN_TICKET.replace(':ticketId', ticketId),
-    { reason }
+    { staffId, reason }
   );
   return response.data;
 };

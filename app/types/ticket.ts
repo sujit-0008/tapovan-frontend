@@ -75,6 +75,7 @@ export interface SkillMapping {
   [category: string]: string[];
 }
 export interface ReassignTicketPayload {
+  staffId: number;
   reason?: string;
 }
 

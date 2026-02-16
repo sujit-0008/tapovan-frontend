@@ -71,7 +71,10 @@ export default function TicketManagement() {
 
   const handleReassign = (ticket: any): void => {
     setSelectedTicket(ticket);
+    const suggested = skillMapping[ticket.category] || [];
+    setSearchSkills(suggested.join(','));
     setReassignReason('');
+    setSelectedStaffId('');
     setShowReassignModal(true);
   };
 
@@ -111,17 +114,19 @@ export default function TicketManagement() {
   };
 
   const confirmReassign = () => {
-    if (!selectedTicket) return;
+    if (!selectedTicket || !selectedStaffId) return;
     reassignMutation.mutate(
       {
         ticketId: selectedTicket.id.toString(),
-        reason : reassignReason,
+        staffId: parseInt(selectedStaffId),
+        reason: reassignReason,
       },
       {
         onSuccess: () => {
           setShowReassignModal(false);
           setSelectedTicket(null);
           setReassignReason('');
+          setSelectedStaffId('');
         },
       }
     );
@@ -477,6 +482,9 @@ export default function TicketManagement() {
               <p className="text-sm text-gray-500">
                 Category: {selectedTicket.category}
               </p>
+              <p className="text-sm text-gray-500">
+                Currently assigned to: {selectedTicket.assignedToAdmin?.name}
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -490,23 +498,72 @@ export default function TicketManagement() {
                 />
               </div>
 
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  ℹ️ This will automatically assign the ticket to the most
-                  suitable available staff member based on skills and workload.
-                </p>
+              <div>
+                <label className="block text-sm font-medium">
+                  Search Staff by Skills
+                </label>
+                <div className="relative mt-1">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="e.g., plumbing, electrical"
+                    value={searchSkills}
+                    onChange={(e) => setSearchSkills(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div className="max-h-64 overflow-y-auto border rounded-lg">
+                {staffData?.staff.length ? (
+                  staffData.staff
+                    .filter(staff => staff.id !== selectedTicket.assignedToAdminId) // Exclude current assignee
+                    .map((staff) => (
+                      <div
+                        key={staff.id}
+                        className={`p-3 border-b cursor-pointer hover:bg-gray-50 transition-colors ${
+                          selectedStaffId === staff.id.toString()
+                            ? 'bg-hostel-gold/10'
+                            : ''
+                        }`}
+                        onClick={() => setSelectedStaffId(staff.id.toString())}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium">{staff.name}</p>
+                            <p className="text-sm text-gray-500">
+                              {staff.skills.join(', ')}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-gray-500">
+                              Active tickets
+                            </p>
+                            <p className="font-medium">{staff.activeTickets}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <p className="p-4 text-center text-gray-500">
+                    No staff found
+                  </p>
+                )}
               </div>
 
               <div className="flex justify-end gap-3">
                 <Button
                   variant="outline"
-                  onClick={() => setShowReassignModal(false)}
+                  onClick={() => {
+                    setShowReassignModal(false);
+                    setSelectedStaffId('');
+                    setReassignReason('');
+                  }}
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={confirmReassign}
-                  disabled={reassignMutation.isPending}
+                  disabled={!selectedStaffId || reassignMutation.isPending}
                 >
                   {reassignMutation.isPending
                     ? 'Reassigning...'
