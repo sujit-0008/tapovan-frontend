@@ -35,7 +35,6 @@ export const useStaffBySkills = (skills: string) => {
   return useQuery({
     queryKey: ['staff-by-skills', skills],
     queryFn: () => getStaffBySkills(skills),
-    enabled: !!skills,
   });
 };
 

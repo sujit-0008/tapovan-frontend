@@ -348,6 +348,11 @@ export default function TicketManagement() {
               <p className="text-sm text-gray-500">
                 Category: {selectedTicket.category}
               </p>
+              {selectedTicket.assignedToAdmin && (
+                <p className="text-sm text-gray-500">
+                  Currently assigned to: {selectedTicket.assignedToAdmin.name}
+                </p>
+              )}
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
